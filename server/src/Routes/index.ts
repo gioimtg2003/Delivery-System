@@ -8,22 +8,21 @@ export class Route extends BaseRoute {
         this.router.get("/", (req, res) => {
             res.send("Hello World");
         });
-        this.router.use("/auth", new AuthRoute().getRouter());
-        this.router.use("/verify", new VerifyRoute().getRouter());
+        // this.router.use("/verify", new VerifyRoute().getRouter());
 
-        this.router.use("/address", new AddressRoute().getRouter());
-        this.router.post("/token", (req, res) => {
-            new RefreshTokenController().Controller(req, res);
-        });
-        this.router.use(
-            "/customer",
-            VerifyToken.middleware,
-            new CustomerRoute().getRouter()
-        );
-        this.router.use(
-            "/order",
-            VerifyToken.middleware,
-            new OrderRoute().getRouter()
-        );
+        // this.router.use("/address", new AddressRoute().getRouter());
+        // this.router.post("/token", (req, res) => {
+        //     new RefreshTokenController().Controller(req, res);
+        // });
+        // this.router.use(
+        //     "/customer",
+        //     VerifyToken.middleware,
+        //     new CustomerRoute().getRouter()
+        // );
+        // this.router.use(
+        //     "/order",
+        //     VerifyToken.middleware,
+        //     new OrderRoute().getRouter()
+        // );
     }
 }
