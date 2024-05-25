@@ -1,0 +1,50 @@
+@keyframes AnimationNotification {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes AnimationNotificationClose {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        visibility: visible;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.5;
+        visibility: visible;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+.AnimationPopUpOpen {
+    animation: AnimationNotification 0.3s ease-in-out;
+    visibility: visible;
+    opacity: 1;
+}
+
+.AnimationPopUpClose {
+    animation: AnimationNotificationClose 0.3s ease-in-out !important;
+    visibility: hidden;
+}
+
+.notificationOpen {
+    visibility: visible;
+}
+.notificationClose {
+    visibility: hidden;
+}

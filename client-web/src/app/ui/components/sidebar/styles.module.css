@@ -1,0 +1,36 @@
+@keyframes AnimationSideBarOpen {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(-50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(0%);
+    opacity: 1;
+  }
+}
+
+@keyframes AnimationSideBarClose {
+  0% {
+    opacity: 1;
+    transform: translateX(0%);
+    visibility: visible;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+.AnimationSideBarOpen {
+  animation: AnimationSideBarOpen 0.3s linear;
+}
+
+.AnimationSideBarClose {
+  animation: AnimationSideBarClose 0.3s ease-in-out !important;
+  visibility: hidden;
+}

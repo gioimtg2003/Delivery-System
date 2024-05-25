@@ -1,8 +1,8 @@
-import { Connect } from "../Lib/Types";
 import { connect } from "mongoose";
-import { createConnection } from "mysql";
+import { Connection, createConnection } from "mysql";
 import { DATABASE_NAME } from "../Configs/db";
-export class MongoService implements Connect {
+import { IConnect } from "../Lib/Types/Connect";
+export class MongoService implements IConnect {
     private uri: string | undefined;
     private database: string | undefined;
     constructor(uri: string | undefined, database: string | undefined) {
@@ -28,16 +28,17 @@ export class MongoService implements Connect {
     }
 }
 
-export class MySQLService implements Connect {
-    connection(): void {
-        const mysqlConnect = createConnection({
+export class MySQLService implements IConnect {
+    public conn: Connection;
+    constructor() {
+        this.conn = createConnection({
             host: "localhost",
             port: 3306,
             user: "root",
             password: "",
-            database: DATABASE_NAME,
+            database: "Delivery_System",
         });
-        mysqlConnect.connect((err) => {
+        this.conn.connect((err) => {
             if (err) {
                 console.error("Error connecting to database");
                 return;
@@ -45,4 +46,5 @@ export class MySQLService implements Connect {
             console.log("Connected to mysql database");
         });
     }
+    connection(): void {}
 }
