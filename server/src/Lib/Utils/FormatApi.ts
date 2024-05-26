@@ -2,7 +2,7 @@ import { FormatDate } from "./FormatDate";
 
 export const FormatApi = (
     code: number,
-    status: string,
+    status: "error" | "success" | "failed",
     message: any,
     data: any,
     time: Date
