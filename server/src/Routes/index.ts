@@ -1,3 +1,4 @@
+import { AuthAdmin } from "./AuthAdmin";
 import { BaseRoute } from "./BaseRoute";
 
 export class Route extends BaseRoute {
@@ -8,6 +9,7 @@ export class Route extends BaseRoute {
         this.router.get("/", (req, res) => {
             res.send("Hello World");
         });
+        this.router.use("/admin", new AuthAdmin().getRouter());
         // this.router.use("/verify", new VerifyRoute().getRouter());
 
         // this.router.use("/address", new AddressRoute().getRouter());
