@@ -41,7 +41,7 @@ export class MySQLService implements IConnect {
         this.conn.connect((err) => {
             if (err) {
                 console.error("Error connecting to database");
-                return;
+                process.exit(1);
             }
             console.log("Connected to mysql database");
         });
