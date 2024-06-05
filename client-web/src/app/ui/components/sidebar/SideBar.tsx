@@ -1,53 +1,50 @@
-import { IoIosCloseCircleOutline } from "react-icons/io";
-import style from "./styles.module.css";
-import { IoLogOutOutline } from "react-icons/io5";
-import { useCallback, useContext } from "react";
-import { LoginContext } from "@/app/lib/context/LoginContext";
-import { LoginActionType } from "@/app/lib/Types";
+"use client";
+import React from "react";
+import Image from "next/image";
+import { RiLogoutBoxRLine } from "react-icons/ri";
+import Link from "next/link";
+import { NavLink } from "@/app/lib/constant/navLink";
 
-export const SideBar = ({
-  open,
-  onClose,
-}: Readonly<{ open: boolean; onClose: () => void }>): JSX.Element => {
-  const { stateLogin, dispatchLogin } = useContext(LoginContext);
-  const Logout = useCallback(() => {
-    dispatchLogin({ type: LoginActionType.LOGOUT });
-  }, [dispatchLogin]);
+export const SideBar = (): JSX.Element => {
+    return (
+        <div
+            className={`w-full h-full flex flex-col justify-start  px-6 py-4  max-lg:hidden`}
+        >
+            <div className="w-full flex flex-row justify-center items-center mb-16">
+                <div className="rounded-full p-2 border-2 border-white shadow-lg shadow-black/15 bg-white">
+                    <Image
+                        src="/images/logo-2.png"
+                        alt="logo"
+                        width={80}
+                        height={80}
+                        objectFit="contain"
+                    />
+                </div>
+            </div>
+            <nav className="w-full flex-col justify-start items-center">
+                {NavLink.map((item, index) => (
+                    <Link
+                        key={index}
+                        href={item.url}
+                        className="w-full py-2 flex flex-row justify-center items-center mb-8"
+                    >
+                        <item.icon size={30} className="w-1/4 text-gray-200" />
+                        <div className="w-3/4 text-md text-gray-800 font-medium">
+                            <p>{item.name}</p>
+                        </div>
+                    </Link>
+                ))}
+                <div className="w-full py-2 flex flex-row justify-center items-center mb-4 cursor-pointer">
+                    <RiLogoutBoxRLine
+                        size={30}
+                        className="w-1/4 text-gray-200"
+                    />
 
-  return (
-    <div
-      className={`absolute top-0 left-0 z-50 w-full h-screen bg-black/15 ${!open && style.AnimationSideBarClose}`}
-    >
-      <div
-        className={`relative w-4/5 bg-white h-screen ${open && style.AnimationSideBarOpen} `}
-      >
-        <div className="flex w-full justify-end items-center">
-          <div className="p-2">
-            <IoIosCloseCircleOutline
-              size={25}
-              className="hover:cursor-pointer text-primary-1-color"
-              onClick={() => {
-                onClose();
-              }}
-            />
-          </div>
+                    <div className="w-3/4 text-md text-gray-800 font-medium">
+                        <p>Đăng xuất</p>
+                    </div>
+                </div>
+            </nav>
         </div>
-        <div className="absolute bottom-4 left-0 w-full ">
-          <div className="flex flex-row w-full justify-between items-center px-2">
-            <div className="text-lg ">
-              <p>Logout</p>
-            </div>
-            <div className="hover:cursor-pointer">
-              <IoLogOutOutline
-                className="size-8 text-primary-1-color"
-                onClick={() => {
-                  Logout();
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+    );
 };

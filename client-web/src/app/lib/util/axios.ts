@@ -26,6 +26,22 @@ export const axiosInstance = (file?: boolean): AxiosInstance => {
         }
         return { ...config };
     });
+    axiosInit.interceptors.response.use(
+        (response) => {
+            const { data } = response;
+            if (data?.code === 401) {
+                grantAccessToken();
+            }
+            return response;
+        },
+        async (error) => {
+            if (error.response?.status === 401) {
+                await grantAccessToken();
+                return axiosInstance(file);
+            }
+            return Promise.reject(error);
+        }
+    );
     return axiosInit;
 };
 
@@ -37,12 +53,11 @@ export const grantAccessToken = async () => {
             token: refreshToken,
         });
         setToken({
-            accessToken: data.data.data.accessToken,
-            refreshToken: refreshToken,
+            accessToken: data.data.data.access_token,
+            refreshToken: data.data.data.refresh_token,
             exp: data.data.data.exp,
         });
-        console.log("Refresh token success");
-        console.log(data.data.data.accessToken);
+
         return data.data.data.accessToken;
     } catch (error) {
         // Logout

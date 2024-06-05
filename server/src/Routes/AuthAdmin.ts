@@ -6,7 +6,7 @@ export class AuthAdmin extends BaseRoute {
         super();
     }
     initRoutes(): void {
-        this.router.post("/auth/sign-in", (req, res) => {
+        this.router.post("/sign-in", (req, res) => {
             new LoginAdminController().Controller(req, res);
         });
     }

@@ -29,7 +29,7 @@ const config: Config = {
                 sans: ["SF Pro Display", "sans-serif"],
             },
             height: {
-                "nav-setting": "calc(100vh - 82px)",
+                "nav-setting": "calc(100vh - 30px)",
             },
         },
     },
