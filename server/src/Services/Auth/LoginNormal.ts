@@ -3,7 +3,6 @@ import { IDataLogin } from "../../Lib/Types/IdataLogin";
 import { BaseLogin } from "./BaseLogin";
 import { Log } from "../../Lib/Utils/Log";
 import { Customer } from "../../Lib/Types/Customer";
-import CustomerSchema from "../../Models/Customer";
 import { HashPassword } from "../Hash";
 import { WelcomeCustomerLogin } from "../Email/WelcomeCustomerLogin";
 

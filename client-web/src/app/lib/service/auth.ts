@@ -40,8 +40,8 @@ export function SignInAdmin(data: LoginProps, message: any): Promise<boolean> {
     return new Promise((resolve, reject) => {
         axios
             .post("/admin/auth/sign-in", {
-                Email: data.Email,
-                Password: data.Password,
+                Email: data.Email?.trim(),
+                Password: data.Password?.trim(),
             })
             .then((res: any) => {
                 if (res.data.status === "success") {

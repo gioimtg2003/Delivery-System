@@ -1,15 +1,9 @@
-import { MySQLService } from "./src/Database/connect";
-import { LoginAdmin } from "./src/Services/Auth/LoginAdmin";
-import { HashPassword } from "./src/Services/Hash";
+import pool from "./src/Database/mysql";
 
-let mysql = new MySQLService();
-mysql.conn.query(
-    "INSERT INTO Employee (Email, Password, Role) VALUES (?, ?, ?)",
-    ["admin", "hello", "admin"],
-    (err, result) => {
-        if (err) {
-            console.log(err);
-        }
-        console.log(result);
-    }
-);
+(async () => {
+    let admin = await pool.execute(
+        "INSERT INTO employee (Name, Email, Password, Phone, Role) VALUES (?, ?, ?, ?, ?)",
+        ["admin", "admin@", "admin", "123456789", "admin"]
+    );
+    console.log(admin);
+})();

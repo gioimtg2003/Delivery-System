@@ -40,7 +40,7 @@ export class JsonWebToken {
         return token;
     }
 
-    private getPayload(): any {
+    public getPayload(): any {
         return this.payload;
     }
 }

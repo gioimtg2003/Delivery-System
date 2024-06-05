@@ -1,7 +1,8 @@
 import { connect } from "mongoose";
-import { Connection, createConnection } from "mysql";
 import { DATABASE_NAME } from "../Configs/db";
 import { IConnect } from "../Lib/Types/Connect";
+import mysql from "mysql2/promise";
+
 export class MongoService implements IConnect {
     private uri: string | undefined;
     private database: string | undefined;
@@ -28,23 +29,23 @@ export class MongoService implements IConnect {
     }
 }
 
-export class MySQLService implements IConnect {
-    public conn: Connection;
-    constructor() {
-        this.conn = createConnection({
-            host: "localhost",
-            port: 3306,
-            user: "root",
-            password: "",
-            database: "Delivery_System",
-        });
-        this.conn.connect((err) => {
-            if (err) {
-                console.error("Error connecting to database");
-                process.exit(1);
-            }
-            console.log("Connected to mysql database");
-        });
-    }
-    connection(): void {}
-}
+// export class MySQLService implements IConnect {
+//     public conn: Promise<mysql.Connection>;
+//     constructor() {
+//         this.conn = mysql.createConnection({
+//             host: "localhost",
+//             port: 3306,
+//             user: "root",
+//             password: "root",
+//             database: "DeliverySystem",
+//         });
+//         this.conn.then((err) => {
+//             if (err) {
+//                 console.error(err);
+//                 process.exit(1);
+//             }
+//             console.log("Connected to mysql database");
+//         });
+//     }
+//     connection(): void {}
+// }

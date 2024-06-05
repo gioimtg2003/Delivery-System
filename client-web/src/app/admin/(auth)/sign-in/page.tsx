@@ -47,10 +47,7 @@ export default function LoginPage(): React.ReactElement {
                                 required: true,
                                 message: "Vui lòng nhập Email!",
                             },
-                            {
-                                type: "email",
-                                message: "Email không hợp lệ!",
-                            },
+                            
                         ]}
                         className="mb-8"
                     >

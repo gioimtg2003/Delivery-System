@@ -9,24 +9,47 @@ import {
 } from "@ant-design/icons";
 import { Tag } from "antd";
 
-export const EmployeeStatus = (status: string): JSX.Element => {
+export const ShipperStatus = (status: string): JSX.Element => {
     switch (status) {
         case "online":
             return (
                 <Tag icon={<CheckCircleOutlined />} color="success">
-                    Online
+                    ONLINE
                 </Tag>
             );
         case "offline":
             return (
                 <Tag icon={<ClockCircleOutlined />} color="default">
-                    Offline
+                    OFFLINE
                 </Tag>
             );
         default:
             return (
                 <Tag icon={<MinusCircleOutlined />} color="default">
-                    Unknown
+                    UNKNOWN
+                </Tag>
+            );
+    }
+};
+
+export const ShipperStatusVerify = (status: number): JSX.Element => {
+    switch (status) {
+        case 1:
+            return (
+                <Tag icon={<CheckCircleOutlined />} color="success">
+                    ĐÃ XÁC THỰC
+                </Tag>
+            );
+        case 0:
+            return (
+                <Tag icon={<ClockCircleOutlined />} color="default">
+                    CHƯA XÁC THỰC
+                </Tag>
+            );
+        default:
+            return (
+                <Tag icon={<MinusCircleOutlined />} color="default">
+                    UNKNOWN
                 </Tag>
             );
     }

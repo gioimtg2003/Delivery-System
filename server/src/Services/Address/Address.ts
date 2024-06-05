@@ -12,7 +12,6 @@ export class Address extends BaseAddress {
     ): Promise<void> {
         try {
             const address = await this.addressSchema.find({ pid: pid });
-            console.log(address.length);
             callback(null, address);
         } catch (error) {
             callback(error, null);

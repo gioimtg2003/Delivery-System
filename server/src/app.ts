@@ -1,8 +1,9 @@
 import cors, { CorsOptions } from "cors";
-import { Express } from "express";
+import { Express, static as static_ } from "express";
 import bodyParser from "body-parser";
 import morgan from "morgan";
 import { Route } from "./Routes";
+import pool from "./Database/mysql";
 
 export class App {
     private app: Express;
@@ -18,7 +19,17 @@ export class App {
         this.route = new Route();
     }
 
-    public initApp(): void {
+    public async initApp(): Promise<void> {
+        try {
+            let conn = await pool.getConnection();
+            if (conn) {
+                console.log("Connected to database");
+                conn.release();
+            }
+        } catch (error) {
+            console.error("Error connecting to database", error);
+            process.exit(1);
+        }
         this.app.use(cors(this.corsOptions));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));
@@ -26,7 +37,7 @@ export class App {
         this.app.get("/", (req, res) => {
             res.send("Hello World");
         });
-        this.app.use("/api", this.route.getRouter());
+        this.app.use("/api", static_("public"), this.route.getRouter());
     }
     public getApp(): Express {
         return this.app;
