@@ -105,7 +105,7 @@ export default function IdentityPage(): JSX.Element {
     ) : (
         <div className="w-full mt-4">
             <p className="text-center text-lg font-medium">{identityStatus}</p>
-            <div className="wf-full flex flex-row max-sm:flex-col justify-center items-center mt-10 px-8">
+            <div className="w-full flex flex-row max-sm:flex-col justify-center items-center mt-10 px-8">
                 <AntdImage.PreviewGroup>
                     <div className="w-1/2 max-sm:w-full flex flex-row  justify-center items-center mt-10 ">
                         {identity ? (

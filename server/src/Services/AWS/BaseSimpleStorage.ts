@@ -20,12 +20,18 @@ export class BaseSimpleStorage {
         bucket,
         key,
         exp,
+        content_type,
     }: {
         readonly bucket: string;
         readonly key: string;
         readonly exp: number;
+        readonly content_type: string;
     }) {
-        const command = new PutObjectCommand({ Bucket: bucket, Key: key });
+        const command = new PutObjectCommand({
+            Bucket: bucket,
+            Key: key,
+            ContentType: content_type,
+        });
         return getSignedUrl(this.s3Client, command, { expiresIn: exp });
     }
 }

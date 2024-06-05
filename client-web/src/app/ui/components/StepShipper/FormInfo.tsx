@@ -5,6 +5,7 @@ import { IAddress } from "@/app/lib/type/Address";
 import { Axios, axiosInstance } from "@/app/lib/util/axios";
 import { VscListSelection } from "react-icons/vsc";
 import { IShipper } from "@/app/lib/type/Shipper";
+import { useShipper } from "@/app/lib/context/Shipper/Context";
 const axios = new Axios().getInstance();
 
 export function FormInfo({
@@ -61,50 +62,52 @@ export function FormInfo({
             (option?.label ?? "").toLowerCase().includes(input.toLowerCase()),
         []
     );
-    useEffect(() => {
-        console.log("FormInfo");
-    }, []);
+    const { reload } = useShipper();
 
-    const createShipper = useCallback((data: IShipper) => {
-        let Province = provinces.find(
-            (province) => province.id === Number(data.Province_id)
-        );
-        let District = districts.find(
-            (district) => district.id === Number(data.District_id)
-        );
-        let Ward = wards.find((ward) => ward.id === Number(data.Ward_id));
-        let Hamlet = hamlet.find(
-            (hamlet) => hamlet.id === Number(data.Hamlet_id)
-        );
-        const payload = {
-            ...data,
-            Province: Province?.name,
-            District: District?.name,
-            Ward: Ward?.name,
-            Hamlet: Hamlet?.name,
-            DetailsAddress: data.DetailsAddress ?? "",
-        };
-        delete payload.Province_id;
-        delete payload.District_id;
-        delete payload.Ward_id;
-        delete payload.Hamlet_id;
-
-        axiosInstance()
-            .post("/admin/info-shipper", payload)
-            .then((res) => {
-                if (res.data.status === "success") {
-                    setIdUser(res.data.data.id);
-                    message.success("Tạo tài xế thành công");
-                    form.resetFields();
-                    next();
-                } else {
+    const createShipper = useCallback(
+        (data: IShipper) => {
+            let Province = provinces.find(
+                (province) => province.id === Number(data.Province_id)
+            );
+            let District = districts.find(
+                (district) => district.id === Number(data.District_id)
+            );
+            let Ward = wards.find((ward) => ward.id === Number(data.Ward_id));
+            let Hamlet = hamlet.find(
+                (hamlet) => hamlet.id === Number(data.Hamlet_id)
+            );
+            const payload = {
+                ...data,
+                Province: Province?.name,
+                District: District?.name,
+                Ward: Ward?.name,
+                Hamlet: Hamlet?.name,
+                DetailsAddress: data.DetailsAddress ?? "",
+            };
+            delete payload.Province_id;
+            delete payload.District_id;
+            delete payload.Ward_id;
+            delete payload.Hamlet_id;
+            console.log(payload);
+            axiosInstance()
+                .post("/admin/info-shipper", payload)
+                .then((res) => {
+                    if (res.data.status === "success") {
+                        setIdUser(res.data.data.id);
+                        message.success("Tạo tài xế thành công");
+                        form.resetFields();
+                        reload();
+                        next();
+                    } else {
+                        message.error("Tạo tài xế thất bại");
+                    }
+                })
+                .catch((error) => {
                     message.error("Tạo tài xế thất bại");
-                }
-            })
-            .catch((error) => {
-                message.error("Tạo tài xế thất bại");
-            });
-    }, []);
+                });
+        },
+        [provinces, wards, districts, hamlet, setIdUser, next, form, reload]
+    );
 
     return (
         <Form

@@ -1,7 +1,8 @@
 import { IconType } from "react-icons";
-import { TbFileInvoice } from "react-icons/tb";
-import { LuBarChart3 } from "react-icons/lu";
+import { IoWalletOutline } from "react-icons/io5";
+import { MdOutlineVerified } from "react-icons/md";
 import { RiDashboardLine, RiEBike2Line } from "react-icons/ri";
+import { BsInboxes } from "react-icons/bs";
 
 export type Link = {
     icon: IconType;
@@ -18,7 +19,22 @@ export const NavLink: Link[] = [
     },
     {
         icon: RiEBike2Line,
-        name: "Nhân viên giao hàng",
+        name: "Thêm mới shipper",
+        url: "/admin/shipper",
+    },
+    {
+        icon: MdOutlineVerified,
+        name: "Xác minh shipper",
+        url: "/admin/verify",
+    },
+    {
+        icon: IoWalletOutline,
+        name: "Quản lý ví",
+        url: "/admin/shipper",
+    },
+    {
+        icon: BsInboxes,
+        name: "Quản lý đơn hàng",
         url: "/admin/shipper",
     },
 ];

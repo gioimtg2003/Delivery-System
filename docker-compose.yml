@@ -1,0 +1,19 @@
+version: "3.1"
+services:
+    mysql:
+        image: mysql:oracle
+        container_name: mysqldb
+        ports:
+            - "3306:3306"
+        volumes:
+            - ~/data:/var/lib/mysql
+        networks:
+            - deliverysystem
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_USER: master
+            MYSQL_PASSWORD: master
+        command: mysqld
+networks:
+    deliverysystem:
+        driver: bridge

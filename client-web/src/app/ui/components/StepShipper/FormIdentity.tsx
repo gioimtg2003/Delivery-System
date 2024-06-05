@@ -1,15 +1,24 @@
+import { getServerSideProps } from "@/app/lib/constant/config";
 import IMAGE from "@/app/lib/constant/img";
+import { useShipper } from "@/app/lib/context/Shipper/Context";
+import { ITransportType } from "@/app/lib/type/TransportType";
 import { axiosInstance } from "@/app/lib/util/axios";
 import { UploadOutlined } from "@ant-design/icons";
-import { message, Upload, UploadFile } from "antd";
+import { Card, Form, message, Radio, Upload, UploadFile } from "antd";
 import { RcFile } from "antd/es/upload";
-import axios from "axios";
-import React, { useCallback, useState } from "react";
+import axios, { AxiosResponse } from "axios";
+import Image from "next/image";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface ISuccess {
     identity?: boolean;
     driveLicense?: boolean;
     vehicleRegistration?: boolean;
+}
+interface IImgUrl {
+    ImgDriveLicense?: string[];
+    ImgIdentityCard?: string[];
+    ImgVehicleRegistrationCert?: string[];
 }
 
 export default function FormIdentity({
@@ -24,7 +33,12 @@ export default function FormIdentity({
         driveLicense: false,
         vehicleRegistration: false,
     });
-
+    const [form] = Form.useForm();
+    const [transportType, setTransportType] = useState<ITransportType[] | null>(
+        null
+    );
+    const [imgUrl, setImgUrl] = useState<IImgUrl>({});
+    const { reload } = useShipper();
     const [listImgIdentity, setListImgIdentity] = useState<UploadFile[]>([]);
     const [listImgDriveLicense, setListImgDriveLicense] = useState<
         UploadFile[]
@@ -32,30 +46,76 @@ export default function FormIdentity({
     const [listImgVehicleRegistration, setListImgVehicleRegistration] =
         useState<UploadFile[]>([]);
 
-    const onComplete = useCallback(() => {
-        if (
-            success.identity &&
-            success.driveLicense &&
-            success.vehicleRegistration &&
-            listImgIdentity.length == 2 &&
-            listImgDriveLicense.length == 2 &&
-            listImgVehicleRegistration.length == 2
-        ) {
-            message.success("Cập nhật thông tin thành công");
-            onClose();
-        } else {
-            message.warning("Vui lòng tải lên đủ hình ảnh");
-        }
-    }, [
-        success,
-        onClose,
-        listImgIdentity,
-        listImgDriveLicense,
-        listImgVehicleRegistration,
-    ]);
+    const onComplete = useCallback(
+        (values: any) => {
+            console.log(values);
+            console.log(listImgIdentity);
+            if (
+                success.identity &&
+                success.driveLicense &&
+                success.vehicleRegistration &&
+                listImgIdentity.length == 2 &&
+                listImgDriveLicense.length == 2 &&
+                listImgVehicleRegistration.length == 2 &&
+                id &&
+                imgUrl.ImgDriveLicense &&
+                imgUrl.ImgIdentityCard &&
+                imgUrl.ImgVehicleRegistrationCert
+            ) {
+                axiosInstance()
+                    .post("/admin/shipper/identity", {
+                        idShipper: id,
+                        idTransportType: values.idTransportType,
+                        ImgDriveLicenseBefore: imgUrl.ImgDriveLicense[0],
+                        ImgDriveLicenseAfter: imgUrl.ImgDriveLicense[1],
+                        ImgIdentityCardAfter: imgUrl.ImgIdentityCard[1],
+                        ImgIdentityCardBefore: imgUrl.ImgIdentityCard[0],
+                        ImgVehicleRegistrationCertBefore:
+                            imgUrl.ImgVehicleRegistrationCert[0],
+                        ImgVehicleRegistrationCertAfter:
+                            imgUrl.ImgVehicleRegistrationCert[1],
+                    })
+                    .then((res) => {
+                        if (res.data.code == 200) {
+                            message.success("Cập nhật thông tin thành công");
+                            onClose();
+                            reload();
+                        } else {
+                            message.warning("Cập nhật thông tin thất bại");
+                        }
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        message.error("Cập nhật thông tin bị lỗi");
+                    });
+            } else {
+                message.warning("Vui lòng tải lên đủ hình ảnh");
+            }
+        },
+        [
+            success,
+            onClose,
+            listImgIdentity,
+            listImgDriveLicense,
+            listImgVehicleRegistration,
+            id,
+        ]
+    );
+
+    useEffect(() => {
+        (async () => {
+            axiosInstance()
+                .get("/transport-type")
+                .then((res: AxiosResponse<any, any>) => {
+                    if (res.data.code == 200) {
+                        setTransportType(res.data.data);
+                    }
+                });
+        })();
+    }, []);
 
     return (
-        <div className="w-full  flex flex-col justify-start items-center max-h-96 overflow-auto">
+        <div className="w-full flex flex-col justify-start items-center max-h-[550px] overflow-auto">
             <div className="w-full text-left my-4 text-xl font-normal font-mono">
                 <p>Hình ảnh CCCD</p>
             </div>
@@ -99,11 +159,10 @@ export default function FormIdentity({
                             );
                             if (data.code == 200) {
                                 onProgress?.({ percent: 50 });
-                                let { url } = data.data;
+                                let { url, key } = data.data;
                                 let putRes = await axios.put(url, file, {
                                     headers: {
                                         "Content-Type": type,
-                                        "Content-Length": new Blob([file]).size,
                                     },
                                 });
 
@@ -111,6 +170,13 @@ export default function FormIdentity({
                                     onProgress?.({ percent: 99 });
                                     onSuccess?.("OK"); // Add null check before invoking onSuccess
                                     setSuccess({ ...success, identity: true });
+                                    setImgUrl({
+                                        ...imgUrl,
+                                        ImgIdentityCard: [
+                                            ...(imgUrl?.ImgIdentityCard || []),
+                                            key,
+                                        ],
+                                    });
                                 } else {
                                     alert("Upload failed");
                                     onError?.({
@@ -176,12 +242,10 @@ export default function FormIdentity({
                                 );
                                 if (data.code == 200) {
                                     onProgress?.({ percent: 50 });
-                                    let { url } = data.data;
+                                    let { url, key } = data.data;
                                     let putRes = await axios.put(url, file, {
                                         headers: {
                                             "Content-Type": type,
-                                            "Content-Length": new Blob([file])
-                                                .size,
                                         },
                                     });
 
@@ -191,6 +255,14 @@ export default function FormIdentity({
                                         setSuccess({
                                             ...success,
                                             driveLicense: true,
+                                        });
+                                        setImgUrl({
+                                            ...imgUrl,
+                                            ImgDriveLicense: [
+                                                ...(imgUrl?.ImgDriveLicense ||
+                                                    []),
+                                                key,
+                                            ],
                                         });
                                     } else {
                                         alert("Upload failed");
@@ -258,12 +330,10 @@ export default function FormIdentity({
                                 );
                                 if (data.code == 200) {
                                     onProgress?.({ percent: 80 });
-                                    let { url } = data.data;
+                                    let { url, key } = data.data;
                                     let putRes = await axios.put(url, file, {
                                         headers: {
                                             "Content-Type": type,
-                                            "Content-Length": new Blob([file])
-                                                .size,
                                         },
                                     });
 
@@ -273,6 +343,15 @@ export default function FormIdentity({
                                         setSuccess({
                                             ...success,
                                             vehicleRegistration: true,
+                                        });
+
+                                        setImgUrl({
+                                            ...imgUrl,
+                                            ImgVehicleRegistrationCert: [
+                                                ...(imgUrl?.ImgVehicleRegistrationCert ||
+                                                    []),
+                                                key,
+                                            ],
                                         });
                                     } else {
                                         alert("Upload failed");
@@ -295,15 +374,60 @@ export default function FormIdentity({
                     </Upload>
                 </div>
             </div>
-            <div className="mt-8">
-                <button
-                    onClick={onComplete}
-                    type="submit"
-                    className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-white hover:text-blue-500 hover:border-blue-500 border-2 border-blue-500 transform transition-all duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"
+            <Form onFinish={onComplete} form={form} name="form-identity">
+                <div className="w-full text-left my-4 text-xl font-normal font-mono">
+                    <p>Phương tiện vận chuyển</p>
+                </div>
+                <Form.Item
+                    name="idTransportType"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Vui lòng chọn phương tiện vận chuyển",
+                        },
+                    ]}
                 >
-                    Cập nhật thông tin
-                </button>
-            </div>
+                    <Radio.Group
+                        name="radiogroup"
+                        className="flex w-full justify-around"
+                    >
+                        {transportType?.map((item) => (
+                            <div
+                                key={item.id}
+                                className="w-44 text-slate-500 p-2"
+                            >
+                                <Card
+                                    title={
+                                        <Radio
+                                            value={item.id}
+                                            className="text-wrap"
+                                        >
+                                            {item.Name}
+                                        </Radio>
+                                    }
+                                    bordered={false}
+                                    className="w-full"
+                                >
+                                    <Image
+                                        src={`${getServerSideProps().props.API_URI}/images/${item.ImgUrl}`}
+                                        alt={item.Name}
+                                        width={64}
+                                        height={64}
+                                    />
+                                </Card>
+                            </div>
+                        ))}
+                    </Radio.Group>
+                </Form.Item>
+                <Form.Item className="mt-8 text-center">
+                    <button
+                        type="submit"
+                        className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-white hover:text-blue-500 hover:border-blue-500 border-2 border-blue-500 transform transition-all duration-300 ease-in-out hover:-translate-y-1 hover:scale-110"
+                    >
+                        Cập nhật thông tin
+                    </button>
+                </Form.Item>
+            </Form>
         </div>
     );
 }

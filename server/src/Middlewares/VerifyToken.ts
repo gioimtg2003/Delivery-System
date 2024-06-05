@@ -13,7 +13,7 @@ interface ITokenData {
 
 export class VerifyToken {
     public static async middleware(
-        req: Request,
+        req: Request<any, any, any, any, Record<string, any>>,
         res: Response<any, Record<string, any>>,
         next: NextFunction
     ) {

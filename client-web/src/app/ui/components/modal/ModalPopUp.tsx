@@ -1,24 +1,21 @@
 import { CloseCircleOutlined } from "@ant-design/icons";
 import style from "./styles.module.css";
 export function ModalPopUp({
-    open,
+    close,
     children,
-    onHidden,
+    onClose,
     className,
-    close = true,
 }: Readonly<{
-    open: boolean;
+    close: boolean;
     children: React.ReactNode;
-    onHidden: () => void;
+    onClose: () => void;
     className?: string;
-    close?: boolean;
 }>): JSX.Element {
     return (
         <>
-            {close && (
+            {!close && (
                 <div
-                    className={`transition-opacity fixed flex flex-row inset-0 justify-center items-center ${!open && "hidden"} bg-black/15 z-50 `}
-                    onClick={onHidden}
+                    className={`transition-opacity fixed flex flex-row inset-0 justify-center items-center bg-black/15 z-50 `}
                 >
                     <div
                         className={`bg-white rounded-md shadow-xl ${style.AnimationPopUpOpen} ${className}`}
@@ -26,11 +23,8 @@ export function ModalPopUp({
                             e.stopPropagation();
                         }}
                     >
-                        <div
-                            className="flex flex-row justify-end items-center hover:cursor-pointer"
-                            onClick={onHidden}
-                        >
-                            <CloseCircleOutlined />
+                        <div className="flex flex-row justify-end items-center">
+                            <CloseCircleOutlined onClick={onClose} />
                         </div>
 
                         {children}

@@ -1,29 +1,30 @@
 export interface IShipperIdentity {
     idShipper: number;
     idTransportType: number;
-    IdentityCard: string;
-    LicensePlates: string;
-    DriverLicenseNumber: string;
+    IdentityCard?: string;
+    LicensePlates?: string;
+    DriverLicenseNumber?: string;
     ImgDriveLicenseBefore: string;
     ImgDriveLicenseAfter: string;
     ImgIdentityCardAfter: string;
     ImgIdentityCardBefore: string;
     ImgVehicleRegistrationCertBefore: string;
     ImgVehicleRegistrationCertAfter: string;
-    Created: Date;
+    CreatedVerify?: Date;
 }
 
 export interface IShipper {
-    id: number;
+    id?: number;
     Name: string;
-    Password: string;
+    Password?: string;
     Re_password?: string;
     Province: string;
     District: string;
     Ward: string;
+    Hamlet: string;
     DetailsAddress: string;
     Phone: string;
     Email: string;
-    Verify: boolean;
+    Verify?: boolean;
     Created?: Date;
 }
