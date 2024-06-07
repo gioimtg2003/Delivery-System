@@ -10,7 +10,7 @@ async function ListShipperWaitingVerifyService(
 ): Promise<void> {
     try {
         let [data] = await pool.execute<IData[]>(
-            "select id from shipper inner join shipperidentity on shippers.id = shipperidentity.idShipper where shippers.Verify = 0"
+            "select shippers.id, shippers.Name, shippers.Email, shippers.Phone, shippers.Province, shippers.District, shippers.Ward, shippers.Hamlet, shippers.Verify, shippers.Created from shippers where shippers.Verify = 0 order by Created desc"
         );
         Log.Info(
             new Date(),
@@ -20,8 +20,8 @@ async function ListShipperWaitingVerifyService(
         );
         return callback(null, data);
     } catch (err) {
-        Log.Error(new Date(), "ListShipperWaitingVerifyService", "listShipper");
-        return callback(err, null);
+        Log.Error(new Date(), err, "listShipper");
+        return callback("Error get shipper", null);
     }
 }
 
