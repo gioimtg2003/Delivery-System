@@ -5,9 +5,9 @@ import { FaRegEye } from "react-icons/fa6";
 import { WaitingVerify } from "./Tag";
 import { IShipper, ShipperDataType } from "@/app/lib/type/Shipper";
 import { message, Table, TableProps } from "antd";
-import Link from "next/link";
 import { dateFormat } from "@/app/lib/util/dateFormat";
 import { axiosInstance } from "@/app/lib/util/axios";
+import { useRouter } from "next/navigation";
 
 const columns: TableProps<ShipperDataType>["columns"] = [
     {
@@ -53,9 +53,12 @@ const columns: TableProps<ShipperDataType>["columns"] = [
         key: "Action",
         render: (id) => (
             <div className="w-full flex flex-row justify-center items-center">
-                <Link href={`/admin/verify/${id}`}>
-                    <FaRegEye className="cursor-pointer" />
-                </Link>
+                <FaRegEye
+                    className="cursor-pointer"
+                    onClick={() => {
+                        window.document.location.href = `/admin/verify/${id}`;
+                    }}
+                />
             </div>
         ),
     },
