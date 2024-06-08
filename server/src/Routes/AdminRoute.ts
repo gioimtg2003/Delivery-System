@@ -1,6 +1,7 @@
 import { CreateInfoShipperController } from "../Controllers/Admin/CURDShipperController/CreateInfoShipperController";
 import { SaveIdentityController } from "../Controllers/Admin/CURDShipperController/IdentityShipperController";
 import { ListShipperController } from "../Controllers/Admin/CURDShipperController/ListShipperController";
+import { ListShipperWaitingVerifyController } from "../Controllers/Admin/ListShipperWaitingVerifyController";
 import { BaseRoute } from "./BaseRoute";
 
 export class AdminRoute extends BaseRoute {
@@ -13,5 +14,21 @@ export class AdminRoute extends BaseRoute {
         });
         this.router.get("/shipper", new ListShipperController().Controller);
         this.router.post("/shipper/identity", SaveIdentityController);
+        this.router.get(
+            "/shipper/identity",
+            new ListShipperWaitingVerifyController().Controller
+        );
+        this.router.get(
+            "/shipper/verify",
+            new ListShipperWaitingVerifyController().Controller
+        );
+        this.router.put(
+            "/shipper/verify",
+            new ListShipperWaitingVerifyController().VerifyShipper
+        );
+        this.router.get(
+            "/shipper/verify/:id",
+            new ListShipperWaitingVerifyController().DetailShipper
+        );
     }
 }

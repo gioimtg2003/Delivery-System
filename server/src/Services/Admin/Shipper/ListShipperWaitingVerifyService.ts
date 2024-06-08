@@ -1,4 +1,4 @@
-import { RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { ICallback } from "../../../Lib/Types/Callback";
 import { IShipper, IShipperIdentity } from "../../../Lib/Types/Shipper";
 import pool from "../../../Database/mysql";
@@ -45,7 +45,50 @@ async function GetDetailsShipperWaitingVerifyService(
         return callback("Error get details shipper", null);
     }
 }
+
+async function VerifyShipperService(
+    data: {
+        id: number;
+        verify: boolean;
+    },
+    callback: ICallback<boolean>
+): Promise<void> {
+    try {
+        let [update_identity] = await pool.execute<ResultSetHeader>(
+            "update shipperidentity set Status = ? where idShipper = ?",
+            [data.verify ? "verified" : "cancel", data.id]
+        );
+        let [update_shipper] = await pool.execute<ResultSetHeader>(
+            "update shippers set Verify = ? where id = ?",
+            [data.verify ? 1 : 0, data.id]
+        );
+        if (
+            update_identity.affectedRows > 0 &&
+            update_shipper.affectedRows > 0
+        ) {
+            Log.Info(
+                new Date(),
+                "VerifyShipperService",
+                "update",
+                "Update Shipper Success"
+            );
+            return callback(null, true);
+        } else {
+            Log.Info(
+                new Date(),
+                "VerifyShipperService",
+                "update",
+                "Update Shipper Fail"
+            );
+            return callback("Error while update", false);
+        }
+    } catch (err) {
+        Log.Error(new Date(), err, "VerifyShipperService");
+        return callback("Error while update", null);
+    }
+}
 export {
     ListShipperWaitingVerifyService,
     GetDetailsShipperWaitingVerifyService,
+    VerifyShipperService,
 };
