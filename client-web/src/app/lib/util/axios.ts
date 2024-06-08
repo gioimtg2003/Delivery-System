@@ -7,7 +7,7 @@ export class Axios {
     getInstance(file?: boolean): AxiosInstance {
         return axios.create({
             baseURL: getServerSideProps().props.API_URI,
-            timeout: 10000,
+            timeout: 20000,
             headers: {
                 "Content-Type": file
                     ? "multipart/form-data"
@@ -26,22 +26,7 @@ export const axiosInstance = (file?: boolean): AxiosInstance => {
         }
         return { ...config };
     });
-    axiosInit.interceptors.response.use(
-        (response) => {
-            const { data } = response;
-            if (data?.code === 401) {
-                grantAccessToken();
-            }
-            return response;
-        },
-        async (error) => {
-            if (error.response?.status === 401) {
-                await grantAccessToken();
-                return axiosInstance(file);
-            }
-            return Promise.reject(error);
-        }
-    );
+
     return axiosInit;
 };
 
@@ -58,7 +43,7 @@ export const grantAccessToken = async () => {
             exp: data.data.data.exp,
         });
 
-        return data.data.data.accessToken;
+        return data.data.data.access_token;
     } catch (error) {
         // Logout
         console.log(error);

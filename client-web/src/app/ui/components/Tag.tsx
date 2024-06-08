@@ -55,6 +55,29 @@ export const ShipperStatusVerify = (status: number): JSX.Element => {
     }
 };
 
+export const WaitingVerify = (status: number): JSX.Element => {
+    switch (status) {
+        case 1:
+            return (
+                <Tag icon={<CheckCircleOutlined />} color="success">
+                    ĐÃ XÁC THỰC
+                </Tag>
+            );
+        case 0:
+            return (
+                <Tag icon={<ExclamationCircleOutlined />} color="warning">
+                    CHỜ XÁC THỰC
+                </Tag>
+            );
+        default:
+            return (
+                <Tag icon={<MinusCircleOutlined />} color="default">
+                    UNKNOWN
+                </Tag>
+            );
+    }
+};
+
 export const OrderStatus = (status: string): JSX.Element => {
     switch (status) {
         case "Pending":

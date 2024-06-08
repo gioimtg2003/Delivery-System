@@ -3,4 +3,5 @@ export interface ITransportType {
     Name: string;
     Description: string;
     ImgUrl: string;
+    TransportName?: string;
 }

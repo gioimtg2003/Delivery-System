@@ -49,9 +49,9 @@ export class CreateInfoShipperController extends BaseCURDShipperController {
                         )
                     );
                 } else {
-                    res.status(HttpCode.OK).json(
+                    res.status(HttpCode.CREATED).json(
                         FormatApi(
-                            HttpCode.OK,
+                            HttpCode.CREATED,
                             "success",
                             "Create Information Shipper",
                             data,

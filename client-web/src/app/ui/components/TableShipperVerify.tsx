@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useMemo } from "react";
-import { FaRegEdit } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
 import { FaRegEye } from "react-icons/fa6";
-import { ShipperStatusVerify } from "./Tag";
-import { ShipperDataType } from "@/app/lib/type/Shipper";
-import { Table, TableProps } from "antd";
-import Link from "next/link";
+import { WaitingVerify } from "./Tag";
+import { IShipper, ShipperDataType } from "@/app/lib/type/Shipper";
+import { message, Table, TableProps } from "antd";
 import { dateFormat } from "@/app/lib/util/dateFormat";
-import { useShipper } from "@/app/lib/context/Shipper/Context";
-import { useSearchParams } from "next/navigation";
+import { axiosInstance } from "@/app/lib/util/axios";
 
 const columns: TableProps<ShipperDataType>["columns"] = [
     {
@@ -40,7 +37,7 @@ const columns: TableProps<ShipperDataType>["columns"] = [
         dataIndex: "Active",
         key: "Active",
         render: (verify) => {
-            return ShipperStatusVerify(verify);
+            return WaitingVerify(verify);
         },
     },
     {
@@ -55,19 +52,35 @@ const columns: TableProps<ShipperDataType>["columns"] = [
         key: "Action",
         render: (id) => (
             <div className="w-full flex flex-row justify-center items-center">
-                <Link href={`/admin/verify/${id}`}>
-                    <FaRegEye className="cursor-pointer" />
-                </Link>
+                <FaRegEye
+                    className="cursor-pointer"
+                    onClick={() => {
+                        window.document.location.href = `/admin/verify/${id}`;
+                    }}
+                />
             </div>
         ),
     },
 ];
 export default function TableShipperVerify(): React.ReactElement {
-    const { state } = useShipper();
-    const searchParams = useSearchParams();
+    const [shippers, setShippers] = useState<IShipper[]>([]);
+    useEffect(() => {
+        axiosInstance()
+            .get("/admin/shipper/verify")
+            .then((res) => {
+                if (res.data.status === "success") {
+                    setShippers(res.data.data);
+                } else {
+                    message.error("Có lỗi xảy ra, vui lòng thử lại sau");
+                }
+            })
+            .catch((err) => {
+                message.error("Có lỗi xảy ra, vui lòng thử lại sau");
+            });
+    }, []);
     const dataSource = useMemo((): ShipperDataType[] => {
         return (
-            state?.shippers?.map((shipper) => ({
+            shippers?.map((shipper) => ({
                 id: shipper.id,
                 key: shipper.id,
                 Name: shipper.Name,
@@ -80,7 +93,7 @@ export default function TableShipperVerify(): React.ReactElement {
                 CreatedAt: dateFormat(shipper.Created?.toString() ?? ""),
             })) ?? []
         );
-    }, [state]);
+    }, [shippers]);
     return (
         <Table
             columns={columns}

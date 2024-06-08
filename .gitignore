@@ -131,3 +131,5 @@ dist
 
 data/
 build
+.vscode
+shipperApp
