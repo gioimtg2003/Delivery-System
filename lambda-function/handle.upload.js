@@ -1,9 +1,11 @@
 import { S3Client, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 const client = new S3Client();
+
 function ISBUCKET(bucket) {
     return ["imgidentity", "imgdrivelicense", "imgvehicleregistrationcert"].includes(bucket)
 }
+
 export const handler = async (event, context) => {
     try {
         const BUCKET = event.Records[0].s3.bucket.name;

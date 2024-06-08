@@ -53,6 +53,19 @@ export function SaveIdentityController(req: Request, res: Response) {
                     )
                 );
         }
+        if (data?.error) {
+            return res
+                .status(HttpCode.INTERNAL_ERROR)
+                .json(
+                    FormatApi(
+                        HttpCode.INTERNAL_ERROR,
+                        "error",
+                        data.msg,
+                        null,
+                        new Date()
+                    )
+                );
+        }
         return res
             .status(HttpCode.OK)
             .json(

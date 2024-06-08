@@ -7,7 +7,6 @@ import { IShipper, ShipperDataType } from "@/app/lib/type/Shipper";
 import { message, Table, TableProps } from "antd";
 import { dateFormat } from "@/app/lib/util/dateFormat";
 import { axiosInstance } from "@/app/lib/util/axios";
-import { useRouter } from "next/navigation";
 
 const columns: TableProps<ShipperDataType>["columns"] = [
     {
