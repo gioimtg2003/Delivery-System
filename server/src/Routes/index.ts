@@ -6,6 +6,7 @@ import { AdminRoute } from "./AdminRoute";
 import { AuthAdmin } from "./AuthAdmin";
 import { BaseRoute } from "./BaseRoute";
 import { MediaRoute } from "./MediaRoute";
+import { ShipperRoute } from "./ShipperRoute";
 
 export class Route extends BaseRoute {
     constructor() {
@@ -16,6 +17,7 @@ export class Route extends BaseRoute {
             res.send("Hello World");
         });
         this.router.use("/admin/auth", new AuthAdmin().getRouter());
+        this.router.use("/shipper", new ShipperRoute().getRouter());
         this.router.use(
             "/admin",
             VerifyToken.middleware,
