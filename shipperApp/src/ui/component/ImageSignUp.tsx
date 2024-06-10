@@ -14,7 +14,6 @@ function dimensions() {
   return {_borderRadius, _height, _width};
 }
 const imgUrl = require('../../../assets/images/Logo-2.png');
-console.log(Dimensions.get('window'));
 export default function ImageSignUp() {
   return (
     <View style={styles.circleView}>
