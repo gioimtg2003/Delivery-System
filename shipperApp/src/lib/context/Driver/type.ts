@@ -2,13 +2,16 @@ import {IDriver} from '../../../types/Driver';
 
 export interface DriverState {
   driver?: IDriver;
-  online: boolean;
+  reload?: boolean;
+  isAuth?: boolean;
 }
 
 export enum DriverActionType {
   SET_DRIVER,
   SET_ONLINE,
   SET_OFFLINE,
+  RELOAD,
+  SET_AUTH,
 }
 
 export interface DriverAction {

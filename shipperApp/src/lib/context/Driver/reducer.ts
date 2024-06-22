@@ -10,17 +10,15 @@ export const DriverReducer = (
         ...state,
         driver: action.payload?.driver,
       };
-
-    case DriverActionType.SET_ONLINE:
+    case DriverActionType.RELOAD:
       return {
         ...state,
-        online: true,
+        reload: !state.reload,
       };
-
-    case DriverActionType.SET_OFFLINE:
+    case DriverActionType.SET_AUTH:
       return {
         ...state,
-        online: false,
+        isAuth: action.payload?.isAuth,
       };
 
     default:

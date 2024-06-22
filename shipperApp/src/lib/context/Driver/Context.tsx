@@ -10,10 +10,12 @@ import {DriverAction, DriverActionType, DriverState} from './type';
 import {DriverReducer} from './reducer';
 import {axiosInstance} from '../../utils/axios';
 import {ToastAndroid} from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const initState: DriverState = {
   driver: undefined,
-  online: false,
+  isAuth: false,
+  reload: false,
 };
 
 const useDriverSource = () => {
@@ -31,31 +33,48 @@ const useDriverSource = () => {
             type: DriverActionType.SET_DRIVER,
             payload: {
               driver: driver.data.data,
-              online: false,
+            },
+          });
+          dispatch({
+            type: DriverActionType.SET_AUTH,
+            payload: {
+              isAuth: true,
             },
           });
         }
       } catch (err) {
         console.log(err);
-        ToastAndroid.show(
-          'Có lỗi xảy ra vui lòng thử lại sau!',
-          ToastAndroid.SHORT,
-        );
+        dispatch({
+          type: DriverActionType.SET_AUTH,
+          payload: {
+            isAuth: false,
+          },
+        });
+        Toast.show({
+          type: 'error',
+          text1: 'Đã xảy ra lỗi!',
+          text2: 'Vui lòng đăng nhập lại!',
+          text1Style: {fontSize: 16, fontWeight: 'normal'},
+          text2Style: {fontSize: 14, fontWeight: 'normal'},
+        });
       }
     })();
-  }, []);
+  }, [state.reload]);
 
   const changeOnline = useCallback(async (online: boolean) => {
+    console.log(online);
     try {
       let update = await (
         await axiosInstance()
       ).put('/shipper/status', {online});
       if (update.data.status === 'success') {
+        Toast.show({
+          type: 'success',
+          text1: 'Cập nhật trạng thái thành công!',
+          text1Style: {fontSize: 16, fontWeight: 'normal'},
+        });
         dispatch({
-          type: online
-            ? DriverActionType.SET_ONLINE
-            : DriverActionType.SET_OFFLINE,
-          payload: {online},
+          type: DriverActionType.RELOAD,
         });
       } else {
         ToastAndroid.show(
@@ -63,8 +82,8 @@ const useDriverSource = () => {
           ToastAndroid.SHORT,
         );
       }
-    } catch (err) {
-      console.log(err);
+    } catch (err: any) {
+      console.log(err.response.data);
       ToastAndroid.show(
         'Có lỗi xảy ra vui lòng thử lại sau!',
         ToastAndroid.SHORT,
@@ -72,7 +91,13 @@ const useDriverSource = () => {
     }
   }, []);
 
-  return {state, changeOnline};
+  const reload = useCallback(() => {
+    dispatch({
+      type: DriverActionType.RELOAD,
+    });
+  }, []);
+
+  return {state, changeOnline, reload};
 };
 
 type DriverContextType = ReturnType<typeof useDriverSource>;
