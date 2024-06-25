@@ -8,6 +8,7 @@ interface ISignUp {
     Name: string;
     Password: string;
     Phone: string;
+    idTransport: number;
 }
 const SignUp = async (
     data: ISignUp,
@@ -18,8 +19,8 @@ const SignUp = async (
 ): Promise<void> => {
     try {
         let [shipper] = await pool.execute<ResultSetHeader>(
-            "insert into shippers (Name, Email, Phone, Password) values (?, ?, ?, ?)",
-            [data.Name, data.Email, data.Phone, data.Password]
+            "insert into shippers (Name, Email, Phone, Password, idTransport) values (?, ?, ?, ?, ?)",
+            [data.Name, data.Email, data.Phone, data.Password, data.idTransport]
         );
         if (shipper.affectedRows === 0) {
             return callback("Lỗi trong khi tạo tài khoản", null);

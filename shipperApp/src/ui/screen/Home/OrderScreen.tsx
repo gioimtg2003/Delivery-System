@@ -40,7 +40,6 @@ const OrderScreen = ({
       <View style={styles.main}>
         <ListOrder navigation={navigation} />
       </View>
-      <ModalOnline visible={openModal} onClose={() => setOpenModal(false)} />
     </SafeAreaView>
   );
 };

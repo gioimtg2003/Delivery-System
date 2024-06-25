@@ -2,68 +2,27 @@ import React from 'react';
 import {FlatList, RefreshControl, StyleSheet, Text, View} from 'react-native';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import Button from './Button';
 import colors from '../../lib/constant/color';
-const orders = [
-  {
-    id: 1,
-    senderAddress: '200 Duong Dinh Hoi',
-
-    receiverAddress:
-      '200 Duong Dinh Hoi, Phuong Phuoc Long B, Quan 9, Thanh pho Ho Chi Minh',
-    distance: 10,
-    price: 10000,
-    transportType: 'Xe máy',
-    description: 'Vào lấy hàng gọi cho tôi trước khi đến cổng của chung cư',
-  },
-  {
-    id: 2,
-    senderAddress:
-      '200 Duong Dinh Hoi, Phuong Phuoc Long B, Quan 9, Thanh pho Ho Chi Minh',
-
-    receiverAddress:
-      '200 Duong Dinh Hoi, Phuong Phuoc Long B, Quan 9, Thanh pho Ho Chi Minh',
-    distance: 10,
-    price: 10000,
-    transportType: 'Xe máy',
-    description: 'Vào lấy hàng gọi cho tôi trước khi đến cổng của chung cư',
-  },
-  {
-    id: 3,
-    senderAddress: '200 Duong Dinh Hoi',
-
-    receiverAddress:
-      '200 Duong Dinh Hoi, Phuong Phuoc Long B, Quan 9, Thanh pho Ho Chi Minh',
-    distance: 10,
-    price: 10000,
-    transportType: 'Xe máy',
-    description: 'Vào lấy hàng gọi cho tôi trước khi đến cổng của chung cư',
-  },
-  {
-    id: 4,
-    senderAddress: '200 Duong Dinh Hoi',
-
-    receiverAddress:
-      '200 Duong Dinh Hoi, Phuong Phuoc Long B, Quan 9, Thanh pho Ho Chi Minh',
-    distance: 10,
-    price: 10000,
-    transportType: 'Xe máy',
-    description:
-      'Vào lấy hàng gọi cho tôi trước khi đến cổng của chung cư, nhớ gọi trước khi đến cổng chung cư',
-  },
-];
+import {useDriver} from '../../lib/context/Driver/Context';
+import {ConvertPrice} from '../../lib/utils/converPrice';
+import {AppScreenParamList} from '../../types/ScreenParam';
 
 const ListOrder = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<ParamListBase>;
+  readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
+  const {state, reloadOrderList} = useDriver();
   const [refreshing, setRefreshing] = React.useState(false);
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 2000);
-  }, []);
+    setTimeout(() => {
+      setRefreshing(false);
+      reloadOrderList();
+    }, 500);
+  }, [reloadOrderList]);
   return (
     <FlatList
       refreshControl={
@@ -74,7 +33,7 @@ const ListOrder = ({
         />
       }
       showsVerticalScrollIndicator={false}
-      data={orders}
+      data={state.orderList}
       renderItem={({item}) => {
         return (
           <View style={styles.container}>
@@ -85,38 +44,34 @@ const ListOrder = ({
                   fontWeight: 'bold',
                   color: 'white',
                 }}>
-                ({item.distance} Km) Lấy đơn ngay
+                ({(item.Distance / 1000).toFixed(2)} Km) Lấy đơn ngay
               </Text>
             </View>
             <View style={styles.addressContainer}>
               <View style={styles.iconContainer}>
                 <EvilIcons name="location" size={24} color="#A0DEFF" />
-                <Text style={styles.label}>{item.senderAddress}</Text>
+                <Text style={styles.label}>{item.SenderAddress}</Text>
               </View>
               <View style={styles.dottedLine} />
               <View style={styles.iconContainer}>
                 <Entypo name="location-pin" size={24} color="#5BBCFF" />
-                <Text style={styles.label}>{item.receiverAddress}</Text>
+                <Text style={styles.label}>{item.ReceiverAddress}</Text>
               </View>
             </View>
             <View style={styles.containerTransport}>
-              <Text style={[styles.label, {flex: 3}]}>{item.description}</Text>
-              <Text
-                style={[
-                  styles.label,
-                  {
-                    flex: 2,
-                    textAlign: 'right',
-                  },
-                ]}>
-                {item.transportType}
-              </Text>
+              <Text style={[styles.label, {flex: 3}]}>{item.Note}</Text>
             </View>
             <View style={styles.containerBottom}>
-              <Text style={[styles.label, {flex: 3}]}>{item.price}đ</Text>
+              <Text style={[styles.label, {flex: 3}]}>
+                {ConvertPrice(item.ShippingFee)}
+              </Text>
               <Button
                 title="Xem chi tiết"
-                onPress={() => navigation.navigate('orderDetails')}
+                onPress={() =>
+                  navigation.navigate('orderDetails', {
+                    id: item.id,
+                  })
+                }
                 style={{flex: 4}}
               />
             </View>
@@ -149,11 +104,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginTop: 10,
+    marginTop: 20,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#C4E4FF',
     paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#C4E4FF',
+    paddingTop: 10,
   },
   addressContainer: {
     width: '100%',

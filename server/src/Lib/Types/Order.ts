@@ -40,25 +40,26 @@ interface StatusDelivery {
     date: Date;
 }
 
-export interface Order {
-    _id?: string;
-    id_order: string;
-    name: string;
-    weight: number;
-    price: number;
-    payer: payer;
-    quantity: number;
-    total_amount: number;
-    customer: IReceiver;
-    id_driver?: ObjectId;
-    id_employee?: ObjectId;
-    id_post_office: ObjectId;
-    method_pickup: method_pickup;
-    status_order: StatusOrder[];
-    status_order_current: status_order;
-    status_delivery: StatusDelivery[];
-    order_type: order_method;
-    desc: string;
-    address_pickup?: string;
-    created_at?: Date;
+export interface IOrder {
+    id?: string;
+    idShipper?: number;
+    idCustomer: number;
+    SenderName: string;
+    SenderPhone: string;
+    SenderAddress: string;
+    SenderDetailsAddress: string;
+    SenderCoordinates?: string;
+    ReceiverName: string;
+    ReceiverPhone: string;
+    ReceiverAddress: string;
+    ReceiverDetailsAddress: string;
+    ReceiverCoordinates?: string;
+    idTransport: number;
+    isCOD: boolean;
+    COD: number;
+    isTakeShippingFee?: boolean;
+    Note: string;
+    ShippingFee: number;
+    Created?: Date;
+    DistanceToSender?: string;
 }

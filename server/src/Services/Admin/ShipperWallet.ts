@@ -14,7 +14,6 @@ const ListShipperWallet = async (
         >(
             "select shippers.Name as NameShipper, driverwallet.* from driverwallet inner join shippers on shippers.id = driverwallet.idShipper where driverwallet.Status = 'pending' order by driverwallet.TimeSubmit desc"
         );
-
         callback(null, data);
     } catch (error) {
         Log.Error(new Date(), error, "ListShipperWallet");
@@ -55,6 +54,12 @@ const HandleSubmitWallet = async (
         );
         if (update.affectedRows === 0) {
             return callback("Wallet not found", null);
+        }
+        if (data.status === "accept") {
+            await pool.execute(
+                "update shippers set Balance = Balance + (select Amount from driverwallet where id = ?) where id = (select idShipper from driverwallet where id = ?)",
+                [data.id, data.id]
+            );
         }
         return callback(null, true);
     } catch (error) {

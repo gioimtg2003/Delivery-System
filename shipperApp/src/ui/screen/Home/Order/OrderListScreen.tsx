@@ -1,18 +1,68 @@
-import React, {useState} from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+  Image,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import colors from '../../../../lib/constant/color';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ModalOnline from '../../../component/ModalOnline';
 import ListOrder from '../../../component/ListOrder';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
+import {useDriver} from '../../../../lib/context/Driver/Context';
+import Loading from '../../../component/Loading';
+import {AppScreenParamList} from '../../../../types/ScreenParam';
+const icon = require('../../../../../assets/images/Logo-2.png');
+import {promptForEnableLocationIfNeeded} from 'react-native-android-location-enabler';
+import HashPermissionLocation from '../../../../lib/utils/HashPermissionLocataion';
+const POLLING_INTERVAL = 3000;
 
 const OrderListScreen = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<ParamListBase>;
+  readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const {state} = useDriver();
+  const [loading, setLoading] = useState<boolean>(false);
+  const intervalId = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      HashPermissionLocation().then(permission => {
+        if (permission) {
+          const checkGPS = () => {
+            promptForEnableLocationIfNeeded({
+              interval: POLLING_INTERVAL,
+              waitForAccurate: true,
+            })
+              .then(data => {
+                console.log(data);
+                if (data && data === 'already-enabled') {
+                  if (intervalId.current) {
+                    clearInterval(intervalId.current);
+                  }
+                }
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          };
+          intervalId.current = setInterval(checkGPS, POLLING_INTERVAL);
+        }
+      });
+
+      return () => {
+        if (intervalId.current) {
+          clearInterval(intervalId.current);
+        }
+      };
+    }
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -25,8 +75,12 @@ const OrderListScreen = ({
               marginRight: 5,
             }}
           />
-          <Text>Nguyễn Công Giới</Text>
-          <Entypo name="dot-single" size={25} color={'green'} />
+          <Text>{state.driver?.Name}</Text>
+          <Entypo
+            name="dot-single"
+            size={25}
+            color={state.driver?.OnlineStatus ? 'green' : 'gray'}
+          />
         </View>
         <SimpleLineIcons
           name="settings"
@@ -38,9 +92,33 @@ const OrderListScreen = ({
         />
       </View>
       <View style={styles.main}>
-        <ListOrder navigation={navigation} />
+        {state.driver?.OnlineStatus ? (
+          <ListOrder navigation={navigation} />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}>
+            <Image source={icon} style={{width: 70, height: 70}} />
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: 'normal',
+                color: colors.placeholder,
+              }}>
+              Bạn đang offline
+            </Text>
+          </View>
+        )}
       </View>
-      <ModalOnline visible={openModal} onClose={() => setOpenModal(false)} />
+      <ModalOnline
+        visible={openModal}
+        onClose={() => setOpenModal(false)}
+        loading={setLoading}
+      />
+      {loading && <Loading />}
     </SafeAreaView>
   );
 };

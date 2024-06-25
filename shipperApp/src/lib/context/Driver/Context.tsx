@@ -11,11 +11,12 @@ import {DriverReducer} from './reducer';
 import {axiosInstance} from '../../utils/axios';
 import {ToastAndroid} from 'react-native';
 import Toast from 'react-native-toast-message';
+import GetCurrentLocation from '../../utils/GetCurrentLocation';
 
 const initState: DriverState = {
   driver: undefined,
-  isAuth: false,
-  reload: false,
+  reloadProfile: false,
+  showWarning: false,
 };
 
 const useDriverSource = () => {
@@ -29,6 +30,7 @@ const useDriverSource = () => {
       try {
         let driver = await (await axiosInstance()).get('/shipper');
         if (driver.data.status === 'success') {
+          console.log(driver.data.data);
           dispatch({
             type: DriverActionType.SET_DRIVER,
             payload: {
@@ -50,23 +52,74 @@ const useDriverSource = () => {
             isAuth: false,
           },
         });
-        Toast.show({
-          type: 'error',
-          text1: 'Đã xảy ra lỗi!',
-          text2: 'Vui lòng đăng nhập lại!',
-          text1Style: {fontSize: 16, fontWeight: 'normal'},
-          text2Style: {fontSize: 14, fontWeight: 'normal'},
-        });
       }
     })();
-  }, [state.reload]);
+  }, [state.reloadProfile]);
+
+  useEffect(() => {
+    (async () => {
+      if (state.isAuth === true) {
+        try {
+          let historyWallet = await (
+            await axiosInstance()
+          ).get('/shipper/wallet');
+          if (historyWallet.data.status === 'success') {
+            dispatch({
+              type: DriverActionType.SET_HISTORY_WALLET,
+              payload: {
+                wallet: historyWallet.data.data,
+              },
+            });
+          }
+        } catch (err: any) {
+          console.error(err.response.data.mesage);
+        }
+      }
+    })();
+  }, [state.isAuth, state.reloadHistoryWallet]);
+
+  useEffect(() => {
+    if (
+      state.isAuth === true &&
+      state.driver?.OnlineStatus === 1 &&
+      state.driver?.Status === 'Free'
+    ) {
+      (async () => {
+        try {
+          let data = await (await axiosInstance()).get('/shipper/order');
+          if (data.data.status === 'success') {
+            console.log(data.data.data);
+            dispatch({
+              type: DriverActionType.SET_ORDER_LIST,
+              payload: {
+                orderList: data.data.data,
+              },
+            });
+          }
+        } catch (err: any) {
+          console.error(err.response.data.message);
+          Toast.show({
+            type: 'error',
+            text1: 'Có lỗi xảy ra khi lấy danh sách đơn hàng',
+            text1Style: {fontSize: 15, fontWeight: 'normal'},
+          });
+        }
+      })();
+    }
+  }, [
+    state.driver?.Status,
+    state.driver?.OnlineStatus,
+    state.isAuth,
+    state.reloadOrderList,
+  ]);
 
   const changeOnline = useCallback(async (online: boolean) => {
     console.log(online);
     try {
+      let {latitude, longitude} = await GetCurrentLocation();
       let update = await (
         await axiosInstance()
-      ).put('/shipper/status', {online});
+      ).put('/shipper/status', {online, latitude, longitude});
       if (update.data.status === 'success') {
         Toast.show({
           type: 'success',
@@ -97,7 +150,54 @@ const useDriverSource = () => {
     });
   }, []);
 
-  return {state, changeOnline, reload};
+  const reloadHistoryWallet = useCallback(() => {
+    dispatch({
+      type: DriverActionType.RELOAD_HISTORY_WALLET,
+    });
+  }, []);
+
+  const reloadOrderList = useCallback(() => {
+    dispatch({
+      type: DriverActionType.RELOAD_ORDER_LIST,
+    });
+  }, []);
+
+  const showWarning = useCallback((title: string, content: string) => {
+    dispatch({
+      type: DriverActionType.SET_WARNING,
+      payload: {
+        warning: {
+          title,
+          content,
+        },
+      },
+    });
+    dispatch({
+      type: DriverActionType.SHOW_WARNING,
+      payload: {
+        showWarning: true,
+      },
+    });
+  }, []);
+
+  const hideWarning = useCallback(() => {
+    dispatch({
+      type: DriverActionType.SHOW_WARNING,
+      payload: {
+        showWarning: false,
+      },
+    });
+  }, []);
+
+  return {
+    state,
+    changeOnline,
+    reload,
+    reloadHistoryWallet,
+    reloadOrderList,
+    showWarning,
+    hideWarning,
+  };
 };
 
 type DriverContextType = ReturnType<typeof useDriverSource>;

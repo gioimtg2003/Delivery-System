@@ -14,38 +14,19 @@ interface Identity {
 }
 type CredentialsType = "password" | "facebook" | "google";
 
-export interface Customer {
-    _id?: string;
-    name: string;
-    shop_name: string;
-    email: string;
-    password: string;
+export interface ICustomer {
+    id?: string;
+    Name?: string;
+    Email?: string;
+    Password: string;
     re_password?: string;
-    phone: string;
-    province?: string;
-    province_id?: string;
-    region?: string;
-    district?: string;
-    district_id?: string;
-    ward?: string;
-    ward_id?: string;
-    street_id?: string;
-    street?: string;
+    Phone: string;
+    Province?: string;
+    District?: string;
+    Hamlet?: string;
+    Ward?: string;
+    Street?: string;
     address_detail?: string;
-    lat?: number;
-    lng?: number;
-    id_employee?: ObjectId;
-    verify_account?: VerifyAccount;
-    user_identity?: Identity;
-    check_verify_user: boolean;
-    check_verify_account: boolean;
-    created_at?: Date;
-    updated_at?: Date;
-    deleted?: boolean;
-    role: string;
-    api_key?: string;
-    credentials_id?: string;
-    credentials_type: CredentialsType;
-    trigger_api_key: boolean;
-    welcome?: boolean;
+    Verify: boolean;
+    OTP?: string;
 }

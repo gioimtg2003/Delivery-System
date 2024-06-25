@@ -7,39 +7,19 @@ const IdentityStack = createNativeStackNavigator<IdentityScreenParamList>();
 
 const IdentityGroupStack = (): React.ReactElement => {
   return (
-    <IdentityStack.Group>
-      <IdentityStack.Screen
-        name="identity"
-        component={IdentityScreen}
-        options={{
-          headerTitle: 'Xác thực tài khoản',
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTitleAlign: 'center',
-        }}
-      />
-      <IdentityStack.Screen
-        name="imgDriveLicense"
-        component={IdentityScreen}
-        options={{
-          headerTitle: 'Xác thực tài khoản',
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTitleAlign: 'center',
-        }}
-      />
+    <IdentityStack.Group
+      screenOptions={{
+        headerTitle: 'Xác thực tài khoản',
+        headerStyle: {
+          backgroundColor: '#fff',
+        },
+        headerTitleAlign: 'center',
+      }}>
+      <IdentityStack.Screen name="identity" component={IdentityScreen} />
+      <IdentityStack.Screen name="imgDriveLicense" component={IdentityScreen} />
       <IdentityStack.Screen
         name="imgVehicleRegistrationCert"
         component={IdentityScreen}
-        options={{
-          headerTitle: 'Xác thực tài khoản',
-          headerStyle: {
-            backgroundColor: '#fff',
-          },
-          headerTitleAlign: 'center',
-        }}
       />
     </IdentityStack.Group>
   );

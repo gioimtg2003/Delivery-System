@@ -5,6 +5,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import OrderScreen from '../ui/screen/Home/OrderScreen';
 import OrderListScreen from '../ui/screen/Home/Order/OrderListScreen';
+import WalletScreen from '../ui/screen/Home/WalletScreen';
 
 const MyOrderIcon = ({color, size}: {color: string; size: number}) => {
   return <Feather name="list" size={size} color={color} />;
@@ -51,7 +52,7 @@ const HomeTabs = (): React.ReactElement => {
       />
       <HomeTab.Screen
         name="home_main2"
-        component={HomeMainScreen}
+        component={WalletScreen}
         options={({route}) => ({
           tabBarIcon: WalletIcon,
           tabBarLabel: 'Ví',

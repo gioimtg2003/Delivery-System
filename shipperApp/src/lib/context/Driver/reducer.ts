@@ -13,7 +13,7 @@ export const DriverReducer = (
     case DriverActionType.RELOAD:
       return {
         ...state,
-        reload: !state.reload,
+        reloadProfile: !state.reloadProfile,
       };
     case DriverActionType.SET_AUTH:
       return {
@@ -21,6 +21,37 @@ export const DriverReducer = (
         isAuth: action.payload?.isAuth,
       };
 
+    case DriverActionType.SET_HISTORY_WALLET:
+      return {
+        ...state,
+        wallet: action.payload?.wallet,
+      };
+
+    case DriverActionType.RELOAD_HISTORY_WALLET:
+      return {
+        ...state,
+        reloadHistoryWallet: !state.reloadHistoryWallet,
+      };
+    case DriverActionType.SET_ORDER_LIST:
+      return {
+        ...state,
+        orderList: action.payload?.orderList,
+      };
+    case DriverActionType.RELOAD_ORDER_LIST:
+      return {
+        ...state,
+        reloadOrderList: !state.reloadOrderList,
+      };
+    case DriverActionType.SET_WARNING:
+      return {
+        ...state,
+        warning: action.payload?.warning,
+      };
+    case DriverActionType.SHOW_WARNING:
+      return {
+        ...state,
+        showWarning: action.payload?.showWarning,
+      };
     default:
       return state;
   }

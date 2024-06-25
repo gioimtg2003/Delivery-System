@@ -23,8 +23,11 @@ export interface IShipper {
     Ward: string;
     Hamlet: string;
     DetailsAddress: string;
+    idTransport: number;
     Phone: string;
     Email: string;
     Verify?: boolean;
     Created?: Date;
+    lat?: number;
+    lng?: number;
 }

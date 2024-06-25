@@ -1,4 +1,9 @@
-import { PutObjectCommand, S3Client, S3ClientConfig } from "@aws-sdk/client-s3";
+import {
+    GetObjectCommand,
+    PutObjectCommand,
+    S3Client,
+    S3ClientConfig,
+} from "@aws-sdk/client-s3";
 import { AWS_CONFIG } from "../../Configs/aws";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 export class BaseSimpleStorage {
@@ -33,5 +38,13 @@ export class BaseSimpleStorage {
             ContentType: content_type,
         });
         return getSignedUrl(this.s3Client, command, { expiresIn: exp });
+    }
+
+    public getUrl(ObjectParam: { bucket: string; key: string }) {
+        const command = new GetObjectCommand({
+            Bucket: ObjectParam.bucket,
+            Key: ObjectParam.key,
+        });
+        return getSignedUrl(this.s3Client, command, { expiresIn: 60 * 5 });
     }
 }

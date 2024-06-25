@@ -4,6 +4,9 @@ export interface IWallet {
     idShipper?: number;
     Status: "pending" | "reject" | "accept";
     Action: "deposit" | "withdraw";
+    TimeSubmit: string | Date;
+    TimeUpdate?: string | Date;
+    ImgUrl?: string;
     Amount: number;
     Created: Date;
 }

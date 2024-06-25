@@ -2,10 +2,12 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
   Alert,
   Keyboard,
+  Modal,
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -15,14 +17,52 @@ import colors from '../../lib/constant/color';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Axios} from '../../lib/utils/axios';
-const SignUpScreen = (): React.ReactElement => {
+import {Axios, axiosInstance} from '../../lib/utils/axios';
+import {NavigationProp} from '@react-navigation/native';
+import ListTransport from '../component/ListTransport';
+import {ITransport} from '../../types/transport';
+import {IdentityScreenParamList} from '../../types/ScreenParam';
+
+interface IFocus {
+  name?: boolean;
+  phone?: boolean;
+  email?: boolean;
+  password?: boolean;
+  rePassword?: boolean;
+}
+
+const SignUpScreen = ({
+  navigation,
+}: {
+  readonly navigation: NavigationProp<IdentityScreenParamList>;
+}): React.ReactElement => {
+  const [focus, setFocus] = useState<IFocus>({
+    name: false,
+    phone: false,
+    email: false,
+    password: false,
+    rePassword: false,
+  });
   const [name, setName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [showKeyBoard, setShowKeyBoard] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
+  const [rePassword, setRePassword] = useState<string>('');
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [transport, setTransport] = useState<ITransport | undefined>(undefined);
+  const [transports, setTransports] = useState<ITransport[]>([]);
   useEffect(() => {
+    (async () => {
+      try {
+        const res = await (await axiosInstance()).get('/transport-type');
+        setTransports(res.data.data);
+      } catch (err) {
+        console.log(err);
+        ToastAndroid.show('Lỗi kết nối', ToastAndroid.SHORT);
+      }
+    })();
     const showKeyBoard = Keyboard.addListener('keyboardDidShow', () => {
       setShowKeyBoard(true);
     });
@@ -34,15 +74,21 @@ const SignUpScreen = (): React.ReactElement => {
       hideKeyBoard.remove();
     };
   }, []);
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [password, setPassword] = useState<string>('');
+
   const toggleShowPassword = useCallback(() => {
-    setShowPassword(!showPassword);
-  }, [showPassword]);
+    setShowPassword(prevShowPassword => !prevShowPassword);
+  }, []);
 
   const handleSignUp = useCallback(() => {
-    if (!name || !phone || !email || !password) {
-      Alert.alert('Vui lòng nhập đầy đủ', 'Vui lòng nhập đầy đủ thông tin');
+    if (!name) {
+      Alert.alert('Vui lòng nhập đầy đủ', 'Tên không được để trống');
+      return;
+    } else if (!phone) {
+      Alert.alert('Vui lòng nhập đầy đủ', 'Số điện thoại không được để trống');
+      return;
+    } else if (!password || !rePassword) {
+      Alert.alert('Vui lòng nhập đầy đủ', 'Mật khẩu không được để trống');
+      return;
     }
 
     new Axios()
@@ -52,9 +98,14 @@ const SignUpScreen = (): React.ReactElement => {
         Phone: phone,
         Email: email,
         Password: password,
+        idTransport: transport?.id,
       })
       .then(res => {
         console.log(res.data.data);
+        // navigate to identity screen and reset stack
+        navigation.navigate('identity', {
+          idShipper: res.data.data.data.id,
+        });
       })
       .catch(err => {
         Alert.alert('Đăng ký không thành công', err.response.data.message, [
@@ -65,7 +116,15 @@ const SignUpScreen = (): React.ReactElement => {
           },
         ]);
       });
-  }, [name, phone, email, password]);
+  }, [name, phone, email, password, navigation, rePassword, transport?.id]);
+
+  const handleFocus = useCallback((field: keyof IFocus) => {
+    setFocus(prevFocus => ({...prevFocus, [field]: true}));
+  }, []);
+
+  const handleBlur = useCallback((field: keyof IFocus) => {
+    setFocus(prevFocus => ({...prevFocus, [field]: false}));
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -82,7 +141,13 @@ const SignUpScreen = (): React.ReactElement => {
             flex: showKeyBoard ? 8 : 5,
           },
         ]}>
-        <View style={styles.input}>
+        <View
+          style={[
+            styles.input,
+            {
+              borderColor: focus.name ? colors.placeholder : '#eee',
+            },
+          ]}>
           <Feather
             name="user"
             size={20}
@@ -90,14 +155,23 @@ const SignUpScreen = (): React.ReactElement => {
             style={{marginRight: 8}}
           />
           <TextInput
-            placeholder="Nhập tên của bạn"
-            style={styles.textInput}
-            placeholderTextColor={'black'}
+            placeholder="Tên đầy đủ"
+            style={[styles.textInput]}
+            placeholderTextColor={'#aaa'}
             value={name}
             onChangeText={setName}
+            onFocus={() => handleFocus('name')}
+            onBlur={() => handleBlur('name')}
           />
         </View>
-        <View style={styles.input}>
+        <View
+          style={[
+            styles.input,
+            {
+              borderWidth: focus.phone ? 1 : 0,
+              borderColor: focus.phone ? colors.placeholder : '#eee',
+            },
+          ]}>
           <Feather
             name="phone-call"
             size={20}
@@ -105,16 +179,25 @@ const SignUpScreen = (): React.ReactElement => {
             style={{marginRight: 8}}
           />
           <TextInput
-            placeholder="Nhập số điện thoại của bạn"
+            placeholder="Số điện thoại"
             style={styles.textInput}
-            placeholderTextColor={'black'}
+            placeholderTextColor={'#aaa'}
             keyboardType="phone-pad"
             maxLength={10}
             value={phone}
             onChangeText={setPhone}
+            onFocus={() => handleFocus('phone')}
+            onBlur={() => handleBlur('phone')}
           />
         </View>
-        <View style={styles.input}>
+        <View
+          style={[
+            styles.input,
+            {
+              borderWidth: focus.email ? 1 : 0,
+              borderColor: focus.email ? colors.placeholder : '#eee',
+            },
+          ]}>
           <MaterialCommunityIcons
             name="email-box"
             size={20}
@@ -122,15 +205,24 @@ const SignUpScreen = (): React.ReactElement => {
             style={{marginRight: 8}}
           />
           <TextInput
-            placeholder="Nhập email của bạn"
+            placeholder="Email (Tùy chọn)"
             style={styles.textInput}
-            placeholderTextColor={'black'}
+            placeholderTextColor={'#aaa'}
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
+            onFocus={() => handleFocus('email')}
+            onBlur={() => handleBlur('email')}
           />
         </View>
-        <View style={styles.input}>
+        <View
+          style={[
+            styles.input,
+            {
+              borderWidth: 1,
+              borderColor: focus.password ? colors.placeholder : '#eee',
+            },
+          ]}>
           <TextInput
             secureTextEntry={!showPassword}
             value={password}
@@ -138,11 +230,14 @@ const SignUpScreen = (): React.ReactElement => {
             style={{
               width: '100%',
               fontSize: 16,
+              color: 'black',
             }}
-            placeholder="Nhập mật khẩu"
-            placeholderTextColor="black"
+            placeholder="Mật khẩu"
+            placeholderTextColor="#aaa"
             autoCorrect={false}
             autoCapitalize="none"
+            onFocus={() => handleFocus('password')}
+            onBlur={() => handleBlur('password')}
           />
           <Feather
             name={showPassword ? 'eye-off' : 'eye'}
@@ -154,17 +249,20 @@ const SignUpScreen = (): React.ReactElement => {
         </View>
         <View style={styles.input}>
           <TextInput
-            secureTextEntry={!showPassword}
-            value={password}
-            onChangeText={setPassword}
+            secureTextEntry={true}
+            value={rePassword}
+            onChangeText={setRePassword}
             style={{
               width: '100%',
               fontSize: 16,
+              color: 'black',
             }}
             placeholder="Nhập lại mật khẩu"
-            placeholderTextColor="black"
+            placeholderTextColor="#aaa"
             autoCorrect={false}
             autoCapitalize="none"
+            onFocus={() => handleFocus('rePassword')}
+            onBlur={() => handleBlur('rePassword')}
           />
           <MaterialIcons
             name={'password'}
@@ -173,28 +271,47 @@ const SignUpScreen = (): React.ReactElement => {
             color={colors.placeholder}
           />
         </View>
-
-        {/* <View style={styles.input}>
-            <Octicons
-              name="location"
-              size={20}
-              color={colors.placeholder}
-              style={{marginRight: 8}}
-            />
-            <TextInput
-              placeholder="Nhập địa chỉ của bạn"
-              style={{
-                width: '100%',
-                color: 'black',
-              }}
-              onFocus={() => setShowModal(true)}
-              placeholderTextColor={'black'}
-              value={address}
-              onChangeText={setAddress}
-              onPress={() => setShowModal(true)}
-            />
-          </View> */}
+        {!(password == rePassword) && rePassword != '' && (
+          <Text
+            style={{
+              color: 'red',
+              fontSize: 12,
+              alignSelf: 'flex-start',
+              marginLeft: 20,
+            }}>
+            Mật khẩu không khớp
+          </Text>
+        )}
+        <TouchableOpacity
+          onPress={() => setShowModal(true)}
+          style={{
+            height: 50,
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: 20,
+            borderRadius: 8,
+            marginBottom: 10,
+            backgroundColor: colors.bgInput,
+            borderWidth: 1,
+            borderColor: '#eee',
+            marginHorizontal: -10,
+          }}>
+          <Text
+            style={{
+              width: '100%',
+              color: transport?.Name ? 'black' : '#aaa',
+            }}>
+            {transport?.Name ? transport?.Name : 'Chọn phương tiện'}
+          </Text>
+          <MaterialCommunityIcons
+            name="chevron-down-circle-outline"
+            size={20}
+            color={'#aaa'}
+            style={{}}
+          />
+        </TouchableOpacity>
       </View>
+
       <View
         style={{
           height: height * 0.3,
@@ -225,15 +342,36 @@ const SignUpScreen = (): React.ReactElement => {
         </TouchableOpacity>
       </View>
 
-      {/* <Modal
-          animationType="slide"
-          transparent={true}
-          visible={showModal}
-          onRequestClose={() => {
-            setShowModal(false);
-          }}>
-          <View style={styles.containerModal}></View>
-        </Modal> */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={showModal}
+        onRequestClose={() => {
+          setShowModal(false);
+        }}>
+        <View style={styles.containerModal}>
+          <View
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              width: width,
+              backgroundColor: 'white',
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              borderTopLeftRadius: 12,
+              borderTopRightRadius: 12,
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              alignItems: 'center',
+            }}>
+            <ListTransport
+              data={transports}
+              setVehicle={setTransport}
+              close={() => setShowModal(false)}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -243,6 +381,7 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: 16,
     height: 50,
+    color: 'black',
   },
   container_password: {
     flex: 1,
@@ -284,6 +423,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 10,
     backgroundColor: colors.bgInput,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
   modal: {
     flex: 1,
@@ -293,7 +434,7 @@ const styles = StyleSheet.create({
   },
   containerModal: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,.5)',
+    backgroundColor: 'rgba(0,0,0,.1)',
   },
   inputAddress: {
     width: '100%',

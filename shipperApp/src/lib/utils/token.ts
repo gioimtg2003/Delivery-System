@@ -14,6 +14,7 @@ const setToken = async (data: IToken) => {
   } catch (e) {
     console.error(e);
   }
+  console.log('Set token success');
 };
 
 const getAT = async () => {

@@ -30,7 +30,7 @@ export const NavLink: Link[] = [
     {
         icon: IoWalletOutline,
         name: "Quản lý ví",
-        url: "/admin/shipper",
+        url: "/admin/wallet",
     },
     {
         icon: BsInboxes,

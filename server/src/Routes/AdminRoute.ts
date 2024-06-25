@@ -2,6 +2,11 @@ import { CreateInfoShipperController } from "../Controllers/Admin/CURDShipperCon
 import { SaveIdentityController } from "../Controllers/Admin/CURDShipperController/IdentityShipperController";
 import { ListShipperController } from "../Controllers/Admin/CURDShipperController/ListShipperController";
 import { ListShipperWaitingVerifyController } from "../Controllers/Admin/ListShipperWaitingVerifyController";
+import {
+    HandleSubmitWalletController,
+    ListHistoryWalletController,
+    ListSubmitWalletController,
+} from "../Controllers/Admin/ShipperWalletController";
 import { BaseRoute } from "./BaseRoute";
 
 export class AdminRoute extends BaseRoute {
@@ -30,5 +35,9 @@ export class AdminRoute extends BaseRoute {
             "/shipper/verify/:id",
             new ListShipperWaitingVerifyController().DetailShipper
         );
+
+        this.router.get("/shipper/wallet", ListSubmitWalletController);
+        this.router.put("/shipper/wallet", HandleSubmitWalletController);
+        this.router.get("/shipper/wallet/history", ListHistoryWalletController);
     }
 }

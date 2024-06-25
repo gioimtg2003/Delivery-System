@@ -6,6 +6,8 @@ const options: PoolOptions = {
     password: "root",
     database: "DeliverySystem",
     connectionLimit: 10,
+    timezone: "+07:00",
+    dateStrings: true,
 };
 
 const pool: Pool = createPool(options);

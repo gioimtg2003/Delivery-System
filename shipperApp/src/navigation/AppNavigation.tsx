@@ -7,23 +7,59 @@ import SignUpScreen from '../ui/screen/SingUp';
 import OrderDetailsScreen from '../ui/screen/Home/Order/OrderDetailsScreen';
 import Toast from 'react-native-toast-message';
 import {useDriver} from '../lib/context/Driver/Context';
-const Stack = createNativeStackNavigator();
-
+import AddWalletScreen from '../ui/screen/Home/AddWalletScreen';
+import {AppScreenParamList} from '../types/ScreenParam';
+import Warning from '../ui/component/Warning';
+import OrderDeliveryScreen from '../ui/screen/Home/Order/OrderDeliveryScreen';
+const AppStack = createNativeStackNavigator<AppScreenParamList>();
 const AppNavigation = (): React.ReactElement => {
   const {state} = useDriver();
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        {!state.isAuth ? (
-          <>
-            <Stack.Screen
+      <AppStack.Navigator>
+        {state.isAuth === true ? (
+          <AppStack.Group>
+            <AppStack.Screen
+              name="home"
+              component={HomeTabs}
+              options={{
+                headerShown: false,
+              }}
+            />
+            <AppStack.Screen
+              name="orderDetails"
+              component={OrderDetailsScreen}
+              options={{
+                headerShown: false,
+                animation: 'slide_from_right',
+              }}
+            />
+            <AppStack.Screen
+              name="AddWalletScreen"
+              component={AddWalletScreen}
+              options={{
+                headerTitle: 'Nạp tiền',
+                animation: 'slide_from_right',
+              }}
+            />
+            <AppStack.Screen
+              name="orderDelivery"
+              component={OrderDeliveryScreen}
+              options={{
+                animation: 'slide_from_right',
+              }}
+            />
+          </AppStack.Group>
+        ) : (
+          <AppStack.Group>
+            <AppStack.Screen
               name="login"
               component={SignInScreen}
               options={{
                 headerShown: false,
               }}
             />
-            <Stack.Screen
+            <AppStack.Screen
               name="signup"
               component={SignUpScreen}
               options={{
@@ -33,28 +69,10 @@ const AppNavigation = (): React.ReactElement => {
                 headerBackTitleStyle: {fontSize: 16},
               }}
             />
-          </>
-        ) : (
-          <>
-            <Stack.Screen
-              name="home"
-              component={HomeTabs}
-              options={{
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="orderDetails"
-              component={OrderDetailsScreen}
-              options={{
-                headerShown: false,
-                animation: 'slide_from_right',
-              }}
-            />
-          </>
+          </AppStack.Group>
         )}
-
-        {/* <Stack.Group
+      </AppStack.Navigator>
+      {/* <Stack.Group
           screenOptions={{
             headerTitle: 'Xác thực tài khoản',
             headerStyle: {
@@ -70,13 +88,13 @@ const AppNavigation = (): React.ReactElement => {
           />
         </Stack.Group> */}
 
-        {/* <Stack.Screen name="identity" component={IdentityScreen} />
+      {/* <Stack.Screen name="identity" component={IdentityScreen} />
           <Stack.Screen name="imgDriveLicense" component={IdentityScreen} />
           <Stack.Screen
             name="imgVehicleRegistrationCert"
             component={IdentityScreen}
           /> */}
-      </Stack.Navigator>
+      <Warning />
       <Toast />
     </NavigationContainer>
   );

@@ -7,8 +7,8 @@ export function TransportCostController(
     req: Request,
     res: Response
 ): void | Response {
-    const { origin, destination, idTransport } = req.query;
-    if (!origin || !destination || !idTransport) {
+    const { origin, destination } = req.query;
+    if (!origin || !destination) {
         return res
             .status(HttpCode.BAD_REQUEST)
             .json(
@@ -49,7 +49,6 @@ export function TransportCostController(
             senderLng,
             receiverLat,
             receiverLng,
-            idTransport: Number(idTransport),
         },
         (err, data) => {
             if (err) {

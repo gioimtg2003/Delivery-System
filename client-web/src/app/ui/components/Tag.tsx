@@ -112,3 +112,55 @@ export const OrderStatus = (status: string): JSX.Element => {
             );
     }
 };
+
+export const WalletStatus = (Status: "pending" | "reject" | "accept") => {
+    switch (Status) {
+        case "pending":
+            return (
+                <Tag icon={<ExclamationCircleOutlined />} color="warning">
+                    Đang chờ
+                </Tag>
+            );
+        case "reject":
+            return (
+                <Tag icon={<CloseCircleOutlined />} color="error">
+                    Từ chối
+                </Tag>
+            );
+        case "accept":
+            return (
+                <Tag icon={<CheckCircleOutlined />} color="success">
+                    Đã chấp nhận
+                </Tag>
+            );
+        default:
+            return (
+                <Tag icon={<MinusCircleOutlined />} color="default">
+                    Unknown
+                </Tag>
+            );
+    }
+};
+
+export const WalletAction = (Action: "deposit" | "withdraw") => {
+    switch (Action) {
+        case "deposit":
+            return (
+                <Tag icon={<CheckCircleOutlined />} color="success">
+                    Nạp
+                </Tag>
+            );
+        case "withdraw":
+            return (
+                <Tag icon={<CloseCircleOutlined />} color="error">
+                    Rút
+                </Tag>
+            );
+        default:
+            return (
+                <Tag icon={<MinusCircleOutlined />} color="default">
+                    Unknown
+                </Tag>
+            );
+    }
+};

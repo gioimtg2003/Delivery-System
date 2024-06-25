@@ -1,7 +1,9 @@
-import { ResultSetHeader } from "mysql2";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../../Database/mysql";
 import { ICallback } from "../../Lib/Types/Callback";
 import { Log } from "../../Lib/Utils/Log";
+import { IWallet } from "../../Lib/Types/Wallet";
+import { ConvertIsoToString } from "../../Lib/Utils/converTimeStamp";
 
 const AddWalletService = async (
     data: {
@@ -32,4 +34,26 @@ const AddWalletService = async (
     }
 };
 
-export { AddWalletService };
+const GetWalletService = async (
+    id: number,
+    callback: ICallback<any>
+): Promise<void> => {
+    try {
+        let [data] = await pool.execute<(IWallet & RowDataPacket)[]>(
+            "SELECT * FROM driverwallet WHERE idShipper = ? order by TimeSubmit desc",
+            [id]
+        );
+        callback(
+            null,
+            data.map((item) => ({
+                ...item,
+                TimeSubmit: ConvertIsoToString(item.TimeSubmit as string),
+            }))
+        );
+    } catch (error) {
+        Log.Error(new Date(), error, "GetWalletService");
+        callback("failed when get wallet", null);
+    }
+};
+
+export { AddWalletService, GetWalletService };

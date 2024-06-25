@@ -36,10 +36,10 @@ async function VerifyOTP(
         if (customer[0].OTP !== data.otp) {
             return callback(null, { err: true, message: "OTP không đúng" });
         } else {
-            await pool.execute("update customers set OTP = ? where Phone = ?", [
-                1,
-                data.Phone,
-            ]);
+            await pool.execute(
+                "update customers set Verify = ? where Phone = ?",
+                [1, data.Phone]
+            );
             return callback(null, {
                 err: false,
                 message: "Xác thực thành công",
