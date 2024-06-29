@@ -7,7 +7,7 @@ const options: PoolOptions = {
     database: "DeliverySystem",
     connectionLimit: 10,
     timezone: "+07:00",
-    dateStrings: true,
+    debug: false,
 };
 
 const pool: Pool = createPool(options);

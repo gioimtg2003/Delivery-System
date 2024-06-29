@@ -26,8 +26,8 @@ export class LoginCustomerController extends BaseController {
                     )
                 );
         }
-        let loginShipper = new LoginCustomer();
-        loginShipper.login({ phone, password }, (err, data) => {
+        let loginCustomer = new LoginCustomer();
+        loginCustomer.login({ phone, password }, (err, data) => {
             if (err) {
                 return res
                     .status(HttpCode.INTERNAL_ERROR)
@@ -35,7 +35,7 @@ export class LoginCustomerController extends BaseController {
                         FormatApi(
                             HttpCode.INTERNAL_ERROR,
                             "error",
-                            "Error while login",
+                            err,
                             null,
                             new Date()
                         )

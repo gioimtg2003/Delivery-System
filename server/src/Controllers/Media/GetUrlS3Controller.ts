@@ -20,9 +20,23 @@ export class GetUrlS3Controller extends BaseController {
                     )
                 );
         }
-        const S3 = new BaseSimpleStorage();
         const bucket = String(url).split("_")[0];
         const key = String(url).split("_")[1];
+        // format url: bucket_key
+        if (!bucket || !key || bucket.length > 50 || key.length > 50) {
+            return res
+                .status(HttpCode.BAD_REQUEST)
+                .json(
+                    FormatApi(
+                        HttpCode.BAD_REQUEST,
+                        "failed",
+                        "Invalid url",
+                        null,
+                        new Date()
+                    )
+                );
+        }
+        const S3 = new BaseSimpleStorage();
         S3.getUrl({
             bucket,
             key,

@@ -3,7 +3,6 @@ import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import colors from '../../../lib/constant/color';
 import Entypo from 'react-native-vector-icons/Entypo';
-import ModalOnline from '../../component/ModalOnline';
 import ListOrder from '../../component/ListOrder';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 

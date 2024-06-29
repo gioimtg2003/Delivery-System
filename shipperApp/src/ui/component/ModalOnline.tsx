@@ -47,8 +47,8 @@ const ModalOnline = ({
                   ios_backgroundColor="#3e3e3e"
                   onValueChange={e => {
                     loading(true);
+                    changeOnline(e);
                     setTimeout(() => {
-                      changeOnline(e);
                       loading(false);
                     }, 1000);
                   }}

@@ -21,7 +21,7 @@ import {Axios, axiosInstance} from '../../lib/utils/axios';
 import {NavigationProp} from '@react-navigation/native';
 import ListTransport from '../component/ListTransport';
 import {ITransport} from '../../types/transport';
-import {IdentityScreenParamList} from '../../types/ScreenParam';
+import {AppScreenParamList} from '../../types/ScreenParam';
 
 interface IFocus {
   name?: boolean;
@@ -34,7 +34,7 @@ interface IFocus {
 const SignUpScreen = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<IdentityScreenParamList>;
+  readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [focus, setFocus] = useState<IFocus>({
     name: false,
@@ -102,9 +102,11 @@ const SignUpScreen = ({
       })
       .then(res => {
         console.log(res.data.data);
-        // navigate to identity screen and reset stack
-        navigation.navigate('identity', {
-          idShipper: res.data.data.data.id,
+        navigation.reset({
+          index: 0,
+          routes: [
+            {name: 'identity', params: {idShipper: res.data.data.data.id}},
+          ],
         });
       })
       .catch(err => {

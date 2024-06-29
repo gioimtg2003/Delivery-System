@@ -2,7 +2,7 @@
 import { IWallet } from "@/app/lib/type/Wallet";
 import { Table, TableProps } from "antd";
 import { WalletAction, WalletStatus } from "../Tag";
-import { convertIso } from "@/app/lib/util/dateFormat";
+import { ConvertIsoToString } from "@/app/lib/util/dateFormat";
 import { useWallet } from "@/app/lib/context/Wallet/Context";
 import { NumberToPrice } from "@/app/lib/util/numberToPrice";
 
@@ -41,7 +41,7 @@ const columns: TableProps<IWallet>["columns"] = [
         key: "TimeSubmit",
         align: "center",
         render: (TimeSubmit) => {
-            return <p>{convertIso(TimeSubmit)}</p>;
+            return <p>{ConvertIsoToString(TimeSubmit)}</p>;
         },
     },
     {
@@ -56,13 +56,12 @@ const columns: TableProps<IWallet>["columns"] = [
         dataIndex: "TimeUpdate",
         key: "TimeUpdate",
         align: "center",
-        render: (TimeUpdate) => convertIso(TimeUpdate),
+        render: (TimeUpdate) => ConvertIsoToString(TimeUpdate),
     },
 ];
 
 const TableHistoryWallet = (): React.ReactElement => {
     const { state } = useWallet();
-
     return (
         <Table
             columns={columns}

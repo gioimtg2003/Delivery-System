@@ -79,11 +79,7 @@ const useDriverSource = () => {
   }, [state.isAuth, state.reloadHistoryWallet]);
 
   useEffect(() => {
-    if (
-      state.isAuth === true &&
-      state.driver?.OnlineStatus === 1 &&
-      state.driver?.Status === 'Free'
-    ) {
+    if (state.isAuth === true && state.driver?.OnlineStatus === 1) {
       (async () => {
         try {
           let data = await (await axiosInstance()).get('/shipper/order');
@@ -116,7 +112,13 @@ const useDriverSource = () => {
   const changeOnline = useCallback(async (online: boolean) => {
     console.log(online);
     try {
-      let {latitude, longitude} = await GetCurrentLocation();
+      let latitude: number = 0,
+        longitude: number = 0;
+      if (online === true) {
+        let {latitude: a, longitude: b} = await GetCurrentLocation();
+        latitude = a;
+        longitude = b;
+      }
       let update = await (
         await axiosInstance()
       ).put('/shipper/status', {online, latitude, longitude});
@@ -137,10 +139,14 @@ const useDriverSource = () => {
       }
     } catch (err: any) {
       console.log(err.response.data);
-      ToastAndroid.show(
-        'Có lỗi xảy ra vui lòng thử lại sau!',
-        ToastAndroid.SHORT,
-      );
+      if (err.response.data.message === 'driver_is_delivering') {
+        ToastAndroid.show('Bạn đang có đơn hàng cần giao!', 5000);
+      } else {
+        ToastAndroid.show(
+          'Có lỗi xảy ra vui lòng thử lại sau!',
+          ToastAndroid.SHORT,
+        );
+      }
     }
   }, []);
 
@@ -189,6 +195,26 @@ const useDriverSource = () => {
     });
   }, []);
 
+  const getOrderPickup = useCallback(async () => {
+    try {
+      let order = await (await axiosInstance()).get('/shipper/order/pickup');
+      if (order.data.status === 'success') {
+        dispatch({
+          type: DriverActionType.SET_ORDER_PICKUP,
+          payload: {
+            orderPickup: order.data.data,
+          },
+        });
+      }
+    } catch (err: any) {
+      console.error(err.response.data);
+      ToastAndroid.show(
+        'Có lỗi xảy ra khi lấy thông tin đơn hàng!',
+        ToastAndroid.SHORT,
+      );
+    }
+  }, []);
+
   return {
     state,
     changeOnline,
@@ -197,6 +223,7 @@ const useDriverSource = () => {
     reloadOrderList,
     showWarning,
     hideWarning,
+    getOrderPickup,
   };
 };
 

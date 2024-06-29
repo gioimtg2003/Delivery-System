@@ -10,10 +10,9 @@ export async function SaveIdentity(
 ): Promise<void> {
     try {
         let [save] = await pool.execute<ResultSetHeader>(
-            "INSERT INTO shipperidentity (idShipper, idTransportType, ImgDriveLicenseBefore, ImgDriveLicenseAfter, ImgIdentityCardAfter, ImgIdentityCardBefore, ImgVehicleRegistrationCertBefore, ImgVehicleRegistrationCertAfter) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO shipperidentity (idShipper, ImgDriveLicenseBefore, ImgDriveLicenseAfter, ImgIdentityCardAfter, ImgIdentityCardBefore, ImgVehicleRegistrationCertBefore, ImgVehicleRegistrationCertAfter) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
                 data.idShipper,
-                data.idTransportType,
                 data.ImgDriveLicenseBefore,
                 data.ImgDriveLicenseAfter,
                 data.ImgIdentityCardAfter,

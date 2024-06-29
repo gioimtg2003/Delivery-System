@@ -32,6 +32,7 @@ const ListOrder = ({
           colors={[colors.placeholder, 'green', 'blue']}
         />
       }
+      style={{width: '100%', zIndex: 1, backgroundColor: 'white'}}
       showsVerticalScrollIndicator={false}
       data={state.orderList}
       renderItem={({item}) => {
@@ -135,6 +136,7 @@ const styles = StyleSheet.create({
   label: {
     marginLeft: 8,
     fontSize: 16,
+    color: 'black',
   },
   dottedLine: {
     width: 1,

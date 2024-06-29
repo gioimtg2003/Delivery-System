@@ -22,14 +22,14 @@ export class LoginCustomer extends BaseLogin {
             );
 
             if (customer.length === 0) {
-                return callback("Phone number not found", null);
+                return callback("account_not_found", null);
             } else if (
                 this._hashPassword.comparePassword(
                     data.password,
                     customer[0].Password as string
                 ) === false
             ) {
-                return callback("Password is incorrect", null);
+                return callback("password_is_incorrect", null);
             } else if (!customer[0].Verify) {
                 return callback(null, {
                     error: false,
@@ -46,8 +46,9 @@ export class LoginCustomer extends BaseLogin {
                 });
             }
         } catch (error) {
-            Log.Error(new Date(), "Server Error", "LoginCustomerService.ts");
-            return callback(error, null);
+            console.error(error);
+            Log.Error(new Date(), error, "LoginCustomerService.ts");
+            return callback("Error when login", null);
         }
     }
 }

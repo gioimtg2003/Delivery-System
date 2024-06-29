@@ -52,9 +52,10 @@ const SliderButton = ({
 
   useEffect(() => {
     if (isAtRightEdge) {
+      x.value = 0;
       onCLick();
     }
-  }, [isAtRightEdge, onCLick]);
+  }, [isAtRightEdge, onCLick, x]);
 
   return (
     <GestureHandlerRootView

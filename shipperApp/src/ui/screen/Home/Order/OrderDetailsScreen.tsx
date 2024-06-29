@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import {ScrollView, StyleSheet, Text, ToastAndroid, View} from 'react-native';
 import SliderButton from '../../../component/SliderButton';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
@@ -13,6 +13,8 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {IOrder} from '../../../../types/Order';
 import {axiosInstance} from '../../../../lib/utils/axios';
 import {AppScreenParamList} from '../../../../types/ScreenParam';
+import {useDriver} from '../../../../lib/context/Driver/Context';
+import Toast from 'react-native-toast-message';
 
 const OrderDetailsScreen = ({
   route,
@@ -22,19 +24,55 @@ const OrderDetailsScreen = ({
   readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [order, setOrder] = React.useState<IOrder | null>(null);
-
+  const {showWarning, reloadOrderList, reload} = useDriver();
   useEffect(() => {
     (async () => {
       try {
         const response = await (
           await axiosInstance()
-        ).get(`/shipper/order/${route.params.id}`);
+        ).get(`/shipper/order/pending/${route.params.id}`);
         setOrder(response.data.data);
       } catch (error) {
         ToastAndroid.show('Lỗi khi lấy dữ liệu', ToastAndroid.SHORT);
       }
     })();
   }, [route.params.id]);
+
+  const pickup = useCallback(async () => {
+    if (order) {
+      try {
+        let response = await (
+          await axiosInstance()
+        ).post(`/shipper/order/pickup/${order.id}`);
+        if (response.data.status === 'success') {
+          reloadOrderList();
+          reload();
+          setTimeout(() => {
+            navigation.reset({
+              index: 1,
+              routes: [
+                {name: 'home'},
+                {name: 'orderDelivery', params: {id: order.id}},
+              ],
+            });
+          }, 1000);
+        }
+      } catch (error: any) {
+        console.log(error.response.data);
+        if (error.response.data.data === 'not_enough_balance') {
+          showWarning('', 'Không đủ tiền trong tài khoản');
+        } else if (error.response.data.data === 'driver_busy') {
+          showWarning('', 'Bạn đang có đơn hàng khác');
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: 'Đã có lỗi xảy ra',
+          });
+        }
+      }
+    }
+  }, [order, navigation, showWarning, reloadOrderList, reload]);
 
   return (
     <View style={styles.container}>
@@ -154,19 +192,7 @@ const OrderDetailsScreen = ({
         </View>
       </ScrollView>
       <View style={styles.containerBtn}>
-        <SliderButton
-          onCLick={() => {
-            if (order) {
-              console.log(order.id);
-              setTimeout(() => {
-                navigation.navigate('orderDelivery', {
-                  id: order.id,
-                });
-              }, 1000);
-            }
-          }}
-          title="Trượt để nhận đơn"
-        />
+        <SliderButton onCLick={pickup} title="Trượt để nhận đơn" />
       </View>
     </View>
   );

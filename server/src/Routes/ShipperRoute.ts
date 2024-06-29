@@ -3,8 +3,12 @@ import {
     UpdateStatusController,
 } from "../Controllers/Shipper/CURDController";
 import {
+    DeliverySuccessOrderController,
+    GetOrderDetailsPickupController,
     GetOrderPendingController,
     GetOrderPendingDetailsController,
+    PickedUpOrderController,
+    PickupOrderController,
 } from "../Controllers/Shipper/OrderController";
 import {
     AddWalletController,
@@ -21,7 +25,11 @@ export class ShipperRoute extends BaseRoute {
         this.router.put("/status", UpdateStatusController);
         this.router.post("/wallet", AddWalletController);
         this.router.get("/wallet", GetWalletController);
-        this.router.get("/order", GetOrderPendingController);
-        this.router.get("/order/:id", GetOrderPendingDetailsController);
+        this.router.get("/order/", GetOrderPendingController);
+        this.router.get("/order/pending/:id", GetOrderPendingDetailsController);
+        this.router.post("/order/pickup/:id", PickupOrderController);
+        this.router.get("/order/pickup", GetOrderDetailsPickupController);
+        this.router.put("/order/pickup/delivery", PickedUpOrderController);
+        this.router.post("/order/success", DeliverySuccessOrderController);
     }
 }

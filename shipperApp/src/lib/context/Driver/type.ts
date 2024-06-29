@@ -15,6 +15,8 @@ export interface DriverState {
     content: string;
   };
   showWarning?: boolean;
+  orderPickup?: IOrder;
+  isLoadOrderPickup?: boolean;
 }
 
 export enum DriverActionType {
@@ -29,6 +31,8 @@ export enum DriverActionType {
   RELOAD_ORDER_LIST,
   SET_WARNING,
   SHOW_WARNING,
+  SET_ORDER_PICKUP,
+  RELOAD_ORDER_PICKUP,
 }
 
 export interface DriverAction {

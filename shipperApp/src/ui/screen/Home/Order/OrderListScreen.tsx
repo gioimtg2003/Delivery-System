@@ -1,13 +1,15 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   Image,
   Platform,
   SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome5';
 import colors from '../../../../lib/constant/color';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ModalOnline from '../../../component/ModalOnline';
@@ -63,6 +65,12 @@ const OrderListScreen = ({
       };
     }
   }, []);
+
+  const click = useCallback(() => {
+    if (state.driver?.idOrder) {
+      navigation.navigate('orderDelivery', {id: state.driver.idOrder});
+    }
+  }, [state.driver?.idOrder, navigation]);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -113,6 +121,28 @@ const OrderListScreen = ({
           </View>
         )}
       </View>
+      {state.driver?.Status === 'Delivering' && state.driver?.idOrder && (
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.order_require}
+          onPress={click}>
+          <Text
+            style={{
+              color: 'red',
+              fontSize: 16,
+              width: '60%',
+            }}>
+            Bạn đang có đơn hàng cần giao
+          </Text>
+          <FontAwesome6
+            name="angle-right"
+            size={25}
+            color={colors.placeholder}
+            style={{width: '10%'}}
+          />
+        </TouchableOpacity>
+      )}
+
       <ModalOnline
         visible={openModal}
         onClose={() => setOpenModal(false)}
@@ -124,6 +154,20 @@ const OrderListScreen = ({
 };
 
 const styles = StyleSheet.create({
+  order_require: {
+    position: 'absolute',
+    bottom: 10,
+    borderRadius: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 15,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.placeholder,
+    width: '95%',
+    zIndex: 100,
+  },
   container: {
     flex: 1,
     width: '100%',

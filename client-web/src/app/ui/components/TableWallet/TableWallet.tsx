@@ -2,8 +2,8 @@
 import { IWallet } from "@/app/lib/type/Wallet";
 import { message, Table, TableProps } from "antd";
 import { WalletAction, WalletStatus } from "../Tag";
-import { useCallback, useMemo } from "react";
-import { convertIso, dateFormat } from "@/app/lib/util/dateFormat";
+import { useCallback, useEffect, useMemo } from "react";
+import { ConvertIsoToString, dateFormat } from "@/app/lib/util/dateFormat";
 import ViewImage from "./ViewImage";
 import LoadingComponent from "../Loading";
 import { TbListDetails } from "react-icons/tb";
@@ -47,7 +47,7 @@ const columns: TableProps<IWallet>["columns"] = [
         key: "TimeSubmit",
         align: "center",
         render: (TimeSubmit) => {
-            return <p>{convertIso(TimeSubmit)}</p>;
+            return <p>{ConvertIsoToString(TimeSubmit)}</p>;
         },
     },
     {
@@ -68,6 +68,9 @@ const columns: TableProps<IWallet>["columns"] = [
 
 const TableWallet = (): React.ReactElement => {
     const { state, reload, reloadHistoryWallet } = useWallet();
+    useEffect(() => {
+        reload();
+    }, [reload]);
     const handle = useCallback(
         async (id: number, status: "accept" | "reject") => {
             try {

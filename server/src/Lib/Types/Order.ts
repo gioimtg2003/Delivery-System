@@ -39,7 +39,14 @@ interface StatusDelivery {
     msg?: string;
     date: Date;
 }
-
+export type TStatus =
+    | "pending"
+    | "pending_pickup"
+    | "picked_up"
+    | "delivery"
+    | "release"
+    | "cancel"
+    | "success";
 export interface IOrder {
     id?: string;
     idShipper?: number;
@@ -61,5 +68,9 @@ export interface IOrder {
     Note: string;
     ShippingFee: number;
     Created?: Date;
-    DistanceToSender?: string;
+    DistanceToSender?: number;
+    Charge?: number;
+    CurrentStatus: TStatus;
+    TimeCurrentStatus?: string;
+    TransportName?: string;
 }

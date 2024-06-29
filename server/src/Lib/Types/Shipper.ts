@@ -1,6 +1,5 @@
 export interface IShipperIdentity {
     idShipper: number;
-    idTransportType: number;
     IdentityCard?: string;
     LicensePlates?: string;
     DriverLicenseNumber?: string;
@@ -10,6 +9,7 @@ export interface IShipperIdentity {
     ImgIdentityCardBefore: string;
     ImgVehicleRegistrationCertBefore: string;
     ImgVehicleRegistrationCertAfter: string;
+    Status?: "pending" | "verified" | "cancel";
     CreatedVerify?: Date;
 }
 
@@ -24,6 +24,9 @@ export interface IShipper {
     Hamlet: string;
     DetailsAddress: string;
     idTransport: number;
+    OnlineStatus: 1 | 0;
+    Status: "Free" | "Delivering";
+    idOrder?: string;
     Phone: string;
     Email: string;
     Verify?: boolean;

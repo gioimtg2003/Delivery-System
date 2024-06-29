@@ -1,6 +1,6 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {StyleSheet, SafeAreaView, View, ToastAndroid} from 'react-native';
-import {NavigationProp, RouteProp} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import Button from '../component/Button';
 import {launchCamera} from 'react-native-image-picker';
 import PlaceImgIdentity from '../component/PlaceImgIdentity';
@@ -11,23 +11,26 @@ import {AppScreenParamList} from '../../types/ScreenParam';
 import HashPermissionCam from '../../lib/utils/HashPermissionCam';
 import UploadS3 from '../../lib/utils/UpLoadS3';
 
-const IdentityScreen = ({
-  route,
+const IdentityScreen1 = ({
   navigation,
 }: {
-  readonly route: RouteProp<AppScreenParamList, 'identity'>;
   readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [imgFront, setImgFront] = useState<string | undefined>(undefined);
   const [imgBack, setImgBack] = useState<string | undefined>(undefined);
   const [key, setKey] = useState<{
-    identityBefore: string;
-    identityAfter: string;
+    imgDriveLicenseBefore: string;
+    imgDriverLicenseAfter: string;
   }>({
-    identityBefore: '',
-    identityAfter: '',
+    imgDriveLicenseBefore: '',
+    imgDriverLicenseAfter: '',
   });
-
+  const shipper = useMemo(() => {
+    return navigation.getState().routes.find(e => e.name === 'identity')
+      ?.params as {
+      idShipper?: number;
+    };
+  }, [navigation]);
   const HandleUpload = useCallback(async () => {
     try {
       let permission = await HashPermissionCam();
@@ -50,9 +53,9 @@ const IdentityScreen = ({
             await axiosInstance()
           ).post('/media/sign-url', {
             fileName: result.assets?.[0].uri,
-            typeImg: IMAGE.IDENTITY,
+            typeImg: IMAGE.DRIVE_LICENSE,
             contentType: result.assets?.[0].type,
-            id: route.params.idShipper,
+            id: shipper.idShipper,
           });
           let putImg = await UploadS3(
             result.assets?.[0].uri as string,
@@ -64,14 +67,14 @@ const IdentityScreen = ({
               setImgFront(result.assets?.[0].uri);
               setKey({
                 ...key,
-                identityBefore: data.data.key,
+                imgDriveLicenseBefore: data.data.key,
               });
             } else {
+              setImgBack(result.assets?.[0].uri);
               setKey({
                 ...key,
-                identityAfter: data.data.key,
+                imgDriverLicenseAfter: data.data.key,
               });
-              setImgBack(result.assets?.[0].uri);
             }
           } else {
             ToastAndroid.show(
@@ -88,7 +91,7 @@ const IdentityScreen = ({
         ToastAndroid.show('Có lỗi xảy ra', ToastAndroid.SHORT);
       }
     }
-  }, [imgFront, route.params.idShipper, key]);
+  }, [imgFront, shipper, key]);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.containerPic}>
@@ -98,7 +101,7 @@ const IdentityScreen = ({
             width: '100%',
             padding: 20,
           }}>
-          <PlaceImgIdentity title="CCCD Mặt Trước" img={imgFront} />
+          <PlaceImgIdentity title="GPLX Mặt Trước" img={imgFront} />
         </View>
         <View
           style={{
@@ -106,7 +109,7 @@ const IdentityScreen = ({
             width: '100%',
             padding: 20,
           }}>
-          <PlaceImgIdentity title="CCCD Mặt Sau" img={imgBack} />
+          <PlaceImgIdentity title="GPLX Mặt Sau" img={imgBack} />
         </View>
       </View>
       <View
@@ -118,14 +121,14 @@ const IdentityScreen = ({
         }}>
         {(imgFront && imgBack) === undefined ? (
           <Button
-            title={imgFront ? 'CCCD MẶT SAU' : 'CCCD MẶT TRƯỚC'}
+            title={imgFront ? 'GPLX MẶT SAU' : 'GPLX MẶT TRƯỚC'}
             onPress={HandleUpload}
           />
         ) : (
           <Button
             title={'TIẾP THEO'}
             onPress={() => {
-              navigation.navigate('imgDriveLicense', key);
+              navigation.navigate('imgVehicleRegistrationCert', key);
             }}
           />
         )}
@@ -154,4 +157,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default IdentityScreen;
+export default IdentityScreen1;

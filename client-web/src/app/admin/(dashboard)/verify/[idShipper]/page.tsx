@@ -8,6 +8,22 @@ import { IShipper, IShipperIdentity } from "@/app/lib/type/Shipper";
 import { axiosInstance } from "@/app/lib/util/axios";
 import { ITransportType } from "@/app/lib/type/TransportType";
 import LoadingComponent from "@/app/ui/components/Loading";
+const getUrl = (key: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        axiosInstance()
+            .get("/media/sign-url?url=" + key)
+            .then((res) => {
+                if (res.data.status === "success") {
+                    resolve(res.data.data);
+                } else {
+                    reject(res.data.message);
+                }
+            })
+            .catch((err) => {
+                reject(err);
+            });
+    });
+};
 export default function PageVerifyShipper({
     params,
 }: {
@@ -17,7 +33,38 @@ export default function PageVerifyShipper({
         (IShipper & IShipperIdentity & ITransportType) | null
     >(null);
     const [loading, setLoading] = useState<boolean>(true);
-
+    useEffect(() => {
+        if (shipper) {
+            (async () => {
+                try {
+                    let img1 = await getUrl(shipper.ImgIdentityCardBefore);
+                    let img2 = await getUrl(shipper.ImgIdentityCardAfter);
+                    let img3 = await getUrl(shipper.ImgDriveLicenseBefore);
+                    let img4 = await getUrl(shipper.ImgDriveLicenseAfter);
+                    let img5 = await getUrl(
+                        shipper.ImgVehicleRegistrationCertBefore
+                    );
+                    let img6 = await getUrl(
+                        shipper.ImgVehicleRegistrationCertAfter
+                    );
+                    setShipper({
+                        ...shipper,
+                        ImgIdentityCardBefore: img1,
+                        ImgIdentityCardAfter: img2,
+                        ImgDriveLicenseBefore: img3,
+                        ImgDriveLicenseAfter: img4,
+                        ImgVehicleRegistrationCertBefore: img5,
+                        ImgVehicleRegistrationCertAfter: img6,
+                    });
+                } catch (error: any) {
+                    console.log(error.response);
+                    if (error.response.data.data.name !== "InvalidBucketName") {
+                        message.error("Có lỗi xảy ra!");
+                    }
+                }
+            })();
+        }
+    }, [shipper]);
     useEffect(() => {
         axiosInstance()
             .get("/admin/shipper/verify/" + params.idShipper)
@@ -139,14 +186,14 @@ export default function PageVerifyShipper({
                                 <Image
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={shipper?.ImgIdentityCardBefore}
                                     className="p-4"
                                 />
                                 <Image
                                     className="p-4"
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={shipper?.ImgIdentityCardAfter}
                                 />
                             </div>
                         </Image.PreviewGroup>
@@ -159,14 +206,14 @@ export default function PageVerifyShipper({
                                 <Image
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={shipper?.ImgDriveLicenseBefore}
                                     className="p-4"
                                 />
                                 <Image
                                     className="p-4"
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={shipper?.ImgDriveLicenseAfter}
                                 />
                             </div>
                         </Image.PreviewGroup>
@@ -179,14 +226,18 @@ export default function PageVerifyShipper({
                                 <Image
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={
+                                        shipper?.ImgVehicleRegistrationCertBefore
+                                    }
                                     className="p-4"
                                 />
                                 <Image
                                     className="p-4"
                                     alt="example"
                                     width={300}
-                                    src="https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__480.jpg"
+                                    src={
+                                        shipper?.ImgVehicleRegistrationCertAfter
+                                    }
                                 />
                             </div>
                         </Image.PreviewGroup>

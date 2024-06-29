@@ -39,17 +39,16 @@ const GetWalletService = async (
     callback: ICallback<any>
 ): Promise<void> => {
     try {
+        pool.execute("set time_zone='+07:00'");
         let [data] = await pool.execute<(IWallet & RowDataPacket)[]>(
             "SELECT * FROM driverwallet WHERE idShipper = ? order by TimeSubmit desc",
             [id]
         );
-        callback(
-            null,
-            data.map((item) => ({
-                ...item,
-                TimeSubmit: ConvertIsoToString(item.TimeSubmit as string),
-            }))
-        );
+        let _data = data.map((item) => ({
+            ...item,
+            TimeSubmit: ConvertIsoToString(item.TimeSubmit as string),
+        }));
+        callback(null, _data);
     } catch (error) {
         Log.Error(new Date(), error, "GetWalletService");
         callback("failed when get wallet", null);

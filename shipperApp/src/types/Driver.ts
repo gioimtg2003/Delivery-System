@@ -15,4 +15,5 @@ export interface IDriver {
   Email: string;
   Verify: boolean;
   Created?: Date;
+  idOrder?: string;
 }

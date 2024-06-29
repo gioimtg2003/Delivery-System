@@ -52,6 +52,16 @@ export const DriverReducer = (
         ...state,
         showWarning: action.payload?.showWarning,
       };
+    case DriverActionType.SET_ORDER_PICKUP:
+      return {
+        ...state,
+        orderPickup: action.payload?.orderPickup,
+      };
+    case DriverActionType.RELOAD_ORDER_PICKUP:
+      return {
+        ...state,
+        isLoadOrderPickup: !state.isLoadOrderPickup,
+      };
     default:
       return state;
   }

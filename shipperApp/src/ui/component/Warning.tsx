@@ -27,9 +27,15 @@ const Warning = (): React.ReactElement => {
                 marginBottom: 20,
                 color: 'black',
               }}>
-              Vui lòng chờ xác nhận từ bên vận chuyển
+              {state.warning?.content}
             </Text>
-            <Button title="OK" onPress={() => hideWarning()} />
+            <Button
+              title="OK"
+              onPress={() => {
+                console.log('OK');
+                hideWarning();
+              }}
+            />
           </View>
         </View>
       </View>
