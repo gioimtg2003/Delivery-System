@@ -132,3 +132,7 @@ dist
 data/
 build
 .vscode
+assets/
+.env
+
+shipperApp/android/build.gradle

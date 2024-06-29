@@ -12,7 +12,6 @@ export class SignUrlS3Controller extends BaseController {
         res: Response<any, Record<string, any>>
     ): Response<any, Record<string, any>> | void {
         const { fileName, typeImg, contentType, id } = req.body;
-        console.log("req.body", req.body);
         if (!fileName || !typeImg || !contentType || !id) {
             return res.status(HttpCode.BAD_REQUEST).json({
                 message: "Bad Request",
@@ -25,7 +24,7 @@ export class SignUrlS3Controller extends BaseController {
         S3.getPresignedUrl({
             bucket: "tmp-filename",
             key: KEY,
-            exp: 30,
+            exp: 60,
             content_type: contentType,
         })
             .then((url) => {

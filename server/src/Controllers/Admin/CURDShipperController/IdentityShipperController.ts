@@ -8,7 +8,6 @@ export function SaveIdentityController(req: Request, res: Response) {
     const data: IShipperIdentity = req.body;
     const {
         idShipper,
-        idTransportType,
         ImgDriveLicenseBefore,
         ImgDriveLicenseAfter,
         ImgIdentityCardAfter,
@@ -19,7 +18,6 @@ export function SaveIdentityController(req: Request, res: Response) {
 
     if (
         !idShipper ||
-        !idTransportType ||
         !ImgDriveLicenseBefore ||
         !ImgDriveLicenseAfter ||
         !ImgIdentityCardAfter ||

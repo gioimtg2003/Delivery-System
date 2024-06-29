@@ -1,6 +1,5 @@
 export interface IShipperIdentity {
     idShipper?: number;
-    idTransportType: number;
     IdentityCard: string;
     LicensePlates: string;
     DriverLicenseNumber: string;
@@ -10,7 +9,7 @@ export interface IShipperIdentity {
     ImgIdentityCardBefore: string;
     ImgVehicleRegistrationCertBefore: string;
     ImgVehicleRegistrationCertAfter: string;
-    Created: Date;
+    Created?: Date;
 }
 
 export interface IShipper {

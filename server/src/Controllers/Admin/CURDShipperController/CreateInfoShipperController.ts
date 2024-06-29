@@ -36,6 +36,9 @@ export class CreateInfoShipperController extends BaseCURDShipperController {
                 Email: String(Email),
                 Password: String(Password),
                 Hamlet: String(Hamlet),
+                idTransport: 5,
+                OnlineStatus: 0,
+                Status: "Free",
             },
             (err, data) => {
                 if (err) {

@@ -14,43 +14,57 @@ import Feather from 'react-native-vector-icons/Feather';
 import {Axios} from '../../lib/utils/axios';
 import {setToken} from '../../lib/utils/token';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import Loading from '../component/Loading';
+import {useDriver} from '../../lib/context/Driver/Context';
 const SignInScreen = ({
   navigation,
 }: {
   readonly navigation: NavigationProp<ParamListBase>;
 }): React.ReactElement => {
+  const {reload} = useDriver();
   const [password, setPassword] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const [loading, setLoading] = useState<boolean>(false);
   const handleSigIn = () => {
+    setLoading(true);
     new Axios()
       .getInstance(false)
-      .post('/shipper/sign-in', {
+      .post('/shipper/auth/sign-in', {
         phone: phone,
         password: password,
       })
       .then(res => {
         if (res.data.status === 'success') {
+          console.log(res.data.data.data);
           setToken({
             accessToken: res.data.data.data.access_token,
             refreshToken: res.data.data.data.refresh_token,
             exp: res.data.data.data.exp,
           }).then(() => {
-            Alert.alert('Success', 'Login success');
+            reload();
+            setTimeout(() => {
+              setLoading(false);
+              navigation.reset({
+                index: 0,
+                routes: [{name: 'home'}],
+              });
+            }, 1000);
           });
         }
       })
       .catch(err => {
         console.log(err);
-        Alert.alert('Error', 'Looi');
+        Alert.alert('Error', 'Có lỗi xảy ra');
       });
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      {loading && <Loading />}
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1, flexDirection: 'column'}}>

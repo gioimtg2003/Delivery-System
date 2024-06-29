@@ -6,7 +6,7 @@ export class Axios {
   getInstance(file?: boolean): AxiosInstance {
     return axios.create({
       baseURL: 'http://10.0.2.2:3000/api',
-      timeout: 20000,
+      timeout: 10000,
       headers: {
         'Content-Type': file ? 'multipart/form-data' : 'application/json',
       },
@@ -27,7 +27,6 @@ export const axiosInstance = async (file?: boolean): Promise<AxiosInstance> => {
       }
     } catch (error) {
       console.error(error);
-      console.log('Error in axiosInstance.ts');
     }
 
     return {...config};

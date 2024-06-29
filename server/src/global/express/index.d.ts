@@ -9,7 +9,11 @@ declare global {
             ReqQuery = core.Query,
             Locals extends Record<string, any> = Record<string, any>
         > extends core.Request<P, ResBody, ReqBody, ReqQuery, Locals> {
-            user?: any;
+            user?: {
+                id: number;
+                role?: string;
+                email: string;
+            };
         }
     }
 }

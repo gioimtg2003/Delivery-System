@@ -4,6 +4,7 @@ import bodyParser from "body-parser";
 import morgan from "morgan";
 import { Route } from "./Routes";
 import pool from "./Database/mysql";
+import { RowDataPacket } from "mysql2";
 
 export class App {
     private app: Express;
@@ -24,6 +25,7 @@ export class App {
             let conn = await pool.getConnection();
             if (conn) {
                 console.log("Connected to database");
+                await conn.execute("set time_zone='+07:00'");
                 conn.release();
             }
         } catch (error) {

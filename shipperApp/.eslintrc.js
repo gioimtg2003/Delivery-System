@@ -2,8 +2,8 @@ module.exports = {
   root: true,
   extends: '@react-native',
   rules: {
-    // "linebreak-style": ["error", "windows"]
-  }
+    'react-native/no-inline-styles': 0,
+  },
 
 
 };

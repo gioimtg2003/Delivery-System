@@ -12,8 +12,8 @@ export class SignUpShipperController extends BaseController {
         req: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>,
         res: Response<any, Record<string, any>>
     ): Response | void {
-        const { Email, Name, Password, Phone } = req.body;
-        if (!Email || !Name || !Password || !Phone) {
+        const { Email, Name, Password, Phone, idTransport } = req.body;
+        if (!Name || !Password || !Phone || !idTransport) {
             return res
                 .status(HttpCode.BAD_REQUEST)
                 .json(
@@ -32,6 +32,7 @@ export class SignUpShipperController extends BaseController {
                 Name,
                 Phone,
                 Password: new HashPassword().hashPassword(Password),
+                idTransport,
             },
             (err, data) => {
                 if (err) {
