@@ -3,6 +3,8 @@ import React from 'react';
 import Feather from 'react-native-vector-icons/Feather';
 import MainScreen from '../ui/screen/home/MainScreen';
 import {IListParamTabHome} from '../lib/types/ParamListScreen';
+import PersonScreen from '../ui/screen/home/PersonScreen';
+import OrderTab from '../ui/screen/home/OrderTab';
 
 const HomeTab = createBottomTabNavigator<IListParamTabHome>();
 
@@ -39,8 +41,8 @@ const HomeTabs = (): React.ReactElement => {
         })}
       />
       <HomeTab.Screen
-        name="home_main1"
-        component={MainScreen}
+        name="order_list"
+        component={OrderTab}
         options={({route}) => ({
           tabBarIcon: MyOrderIcon,
           tabBarLabel: 'Đơn hàng',
@@ -49,7 +51,7 @@ const HomeTabs = (): React.ReactElement => {
 
       <HomeTab.Screen
         name="home_main3"
-        component={MainScreen}
+        component={PersonScreen}
         options={({route}) => ({
           tabBarIcon: ProfileIcon,
           tabBarLabel: 'Cá nhân',

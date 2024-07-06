@@ -10,7 +10,7 @@ import Animated, {
   useAnimatedStyle,
 } from 'react-native-reanimated';
 import {AppScreenParamList} from '../../types/ScreenParam';
-import {useDriver} from '../../lib/context/Driver/Context';
+import {useAuth} from '../../lib/context/auth.context';
 const icon = require('../../../assets/images/Logo-2.png');
 const IntroScreen = ({
   navigation,
@@ -18,11 +18,11 @@ const IntroScreen = ({
   readonly navigation: NavigationProp<AppScreenParamList>;
 }) => {
   const positionAnimation = useSharedValue({y: 0, scale: 1});
-  const {state} = useDriver();
+  const {isLoggedIn} = useAuth();
   useEffect(() => {
-    if (state.isAuth !== undefined) {
+    if (isLoggedIn !== null) {
       setTimeout(() => {
-        if (state.isAuth === true) {
+        if (isLoggedIn === true) {
           navigation.reset({
             index: 0,
             routes: [{name: 'home'}],
@@ -35,7 +35,7 @@ const IntroScreen = ({
         }
       }, 2000);
     }
-  }, [navigation, state.isAuth]);
+  }, [navigation, isLoggedIn]);
   useEffect(() => {
     positionAnimation.value = withSequence(
       withTiming({y: -20, scale: 1.2}, {duration: 500, easing: Easing.ease}),

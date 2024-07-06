@@ -26,6 +26,7 @@ import Button from '../../../component/Button';
 import {formatPhoneNumber} from '../../../../lib/utils/fornatPhoneNumber';
 import {axiosInstance} from '../../../../lib/utils/axios';
 import Toast from 'react-native-toast-message';
+import {useAuth} from '../../../../lib/context/auth.context';
 const iconMoney = require('../../../../../assets/images/money-icon.png');
 
 const DeliveryScreen = ({
@@ -34,6 +35,7 @@ const DeliveryScreen = ({
   navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const {state} = useDriver();
+  const {reload} = useAuth();
   const handleCall = useCallback(async () => {
     let permission = await HashPermissionCall();
     if (permission) {
@@ -53,6 +55,7 @@ const DeliveryScreen = ({
     try {
       let update = await (await axiosInstance()).post('/shipper/order/success');
       if (update.data.code === 200) {
+        reload();
         Toast.show({
           type: 'success',
           text1: 'Giao hàng thành công',
@@ -69,7 +72,7 @@ const DeliveryScreen = ({
         text1: 'Có lỗi xảy ra',
       });
     }
-  }, [navigation]);
+  }, [navigation, reload]);
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView
@@ -80,9 +83,16 @@ const DeliveryScreen = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => {
-            Linking.openURL(
-              `https://www.google.com/maps/search/?api=1&query=${state.orderPickup?.ReceiverCoordinates}`,
-            );
+            navigation.navigate('mapScreen', {
+              destination: [
+                Number(state.orderPickup?.ReceiverCoordinates?.split(',')[1]),
+                Number(state.orderPickup?.ReceiverCoordinates?.split(',')[0]),
+              ],
+              type: 'delivery',
+            });
+            // Linking.openURL(
+            //   `https://www.google.com/maps/search/?api=1&query=${state.orderPickup?.ReceiverCoordinates}`,
+            // );
           }}
           style={[
             styles.iconContainer,

@@ -39,6 +39,7 @@ export class CreateInfoShipperController extends BaseCURDShipperController {
                 idTransport: 5,
                 OnlineStatus: 0,
                 Status: "Free",
+                Verify: 0,
             },
             (err, data) => {
                 if (err) {

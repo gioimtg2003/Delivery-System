@@ -145,35 +145,6 @@ export const HistoryOrderService = async (
     }
 };
 
-export const PickedUpOrderService = async (
-    data: {
-        idOrder: string;
-        id: number;
-    },
-    callback: ICallback<boolean>
-): Promise<void> => {
-    try {
-        let time = convertTimeStamp(Date.now());
-        let [update] = await pool.execute<ResultSetHeader>(
-            "update orders set CurrentStatus = ?, TimeCurrentStatus = ? where id = ? and idCustomer = ? and idShipper is not null and CurrentStatus = 'pending_pickup'",
-            [Status.PICKED_UP, time, data.idOrder, data.id]
-        );
-        if (update.affectedRows === 0) {
-            return callback("Bad request", null);
-        } else {
-            await pool.execute(
-                "insert into orderstatus (idOrder, Status, Created) values (?,?,?)",
-                [data.idOrder, Status.PICKED_UP, time]
-            );
-            callback(null, true);
-        }
-    } catch (err) {
-        console.error(err);
-        Log.Error(new Date(), err, "PickedUpOrderService");
-        return callback("Error when update picked up order", null);
-    }
-};
-
 export const GetOrderDetailService = async (
     data: {
         idOrder: string;

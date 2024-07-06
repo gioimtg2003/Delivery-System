@@ -43,7 +43,6 @@ export type TStatus =
     | "pending"
     | "pending_pickup"
     | "picked_up"
-    | "delivery"
     | "release"
     | "cancel"
     | "success";

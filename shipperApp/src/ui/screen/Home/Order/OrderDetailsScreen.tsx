@@ -15,6 +15,7 @@ import {axiosInstance} from '../../../../lib/utils/axios';
 import {AppScreenParamList} from '../../../../types/ScreenParam';
 import {useDriver} from '../../../../lib/context/Driver/Context';
 import Toast from 'react-native-toast-message';
+import {useAuth} from '../../../../lib/context/auth.context';
 
 const OrderDetailsScreen = ({
   route,
@@ -24,7 +25,8 @@ const OrderDetailsScreen = ({
   readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [order, setOrder] = React.useState<IOrder | null>(null);
-  const {showWarning, reloadOrderList, reload} = useDriver();
+  const {showWarning, reloadOrderList} = useDriver();
+  const {reload} = useAuth();
   useEffect(() => {
     (async () => {
       try {

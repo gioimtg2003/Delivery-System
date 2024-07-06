@@ -84,7 +84,7 @@ const ListTransport = ({
             onPressIn={() => handleFocus(transport.id)}>
             <Image
               source={{
-                uri: 'http://10.0.2.2:3000/api/images/' + transport.ImgUrl,
+                uri: 'http://192.168.1.76:3000/api/images/' + transport.ImgUrl,
               }}
               style={{width: 50, height: 50}}
             />

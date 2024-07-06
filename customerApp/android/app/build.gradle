@@ -83,7 +83,7 @@ android {
         versionName "1.0"
     }
     signingConfigs {
-         release {
+        release {
             if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
                 storeFile file(MYAPP_UPLOAD_STORE_FILE)
                 storePassword MYAPP_UPLOAD_STORE_PASSWORD
@@ -123,6 +123,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    implementation project(':react-native-push-notification')
+    implementation project(':react-native-background-timer')
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

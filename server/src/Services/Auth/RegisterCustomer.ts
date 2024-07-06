@@ -5,6 +5,7 @@ import pool from "../../Database/mysql";
 import { ResultSetHeader } from "mysql2";
 import { randomCode } from "../../Lib/Utils/randomCode";
 import { convertTimeStamp } from "../../Lib/Utils/converTimeStamp";
+import { CustomerEmailRegister } from "../Email/CustomerEmailRegister";
 
 export class RegisterCustomer {
     private hashPassword: HashPassword;
@@ -23,11 +24,16 @@ export class RegisterCustomer {
         data.Password = this.hashPassword.hashPassword(data.Password);
         try {
             const code = randomCode();
-            console.log(code);
+            console.log(data);
+            let email = new CustomerEmailRegister(
+                data.Email,
+                data.Phone,
+                Number(code)
+            );
             let customer = await pool.execute<ResultSetHeader>(
                 "insert into customers (Email, Password, Phone, OTP, ExpOTP) values (?, ?, ?, ?, ?)",
                 [
-                    data.Email == "" && null,
+                    data.Email,
                     data.Password,
                     data.Phone,
                     code,
@@ -41,14 +47,16 @@ export class RegisterCustomer {
                     `Register customer with email: ${data.Email} - password: ${data.Password}`,
                     "RegisterCustomer"
                 );
+                email.sendEmail();
                 callback(null, "Register success");
             } else {
                 Log.Error(new Date(), "Failed", "RegisterCustomer");
                 return callback("Lỗi trong khi đăng ký", null);
             }
         } catch (error: any) {
+            console.error(error);
             if (error.code === "ER_DUP_ENTRY") {
-                return callback("Số điện thoại đã tồn tại", null);
+                return callback("Số điện thoại hoặc email đã tồn tại", null);
             } else {
                 Log.Error(new Date(), error, "RegisterCustomer");
                 return callback("Lỗi trong khi đăng ký", null);

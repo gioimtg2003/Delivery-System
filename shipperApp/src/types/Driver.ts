@@ -16,4 +16,5 @@ export interface IDriver {
   Verify: boolean;
   Created?: Date;
   idOrder?: string;
+  idTransport: number;
 }

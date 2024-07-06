@@ -50,7 +50,7 @@ export class VerifyToken {
                     );
             } else if (!check.err) {
                 req.user = {
-                    id: String(check.id),
+                    id: Number(check.id),
                     role: String(check.role),
                     email: String(check.email),
                 };

@@ -9,7 +9,7 @@ import {
   Switch,
 } from 'react-native';
 import colors from '../../lib/constant/color';
-import {useDriver} from '../../lib/context/Driver/Context';
+import {useAuth} from '../../lib/context/auth.context';
 
 const {height} = Dimensions.get('window');
 const modalHeight = height / 5;
@@ -23,7 +23,7 @@ const ModalOnline = ({
   readonly onClose: () => void;
   readonly loading: (loading: boolean) => void;
 }) => {
-  const {changeOnline, state} = useDriver();
+  const {changeOnline, driver} = useAuth();
   return (
     <Modal
       visible={visible}
@@ -52,7 +52,7 @@ const ModalOnline = ({
                       loading(false);
                     }, 1000);
                   }}
-                  value={state.driver?.OnlineStatus === 1}
+                  value={driver?.OnlineStatus === 1}
                 />
               </View>
             </View>

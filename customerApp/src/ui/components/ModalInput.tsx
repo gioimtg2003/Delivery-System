@@ -54,6 +54,7 @@ function ModalInput(props: Readonly<ModalInputProps>) {
     try {
       let hashPermission = await hashPermissionLocation();
       if (hashPermission) {
+        ToastAndroid.show('Hiện tính năng này đang bảo trì', ToastAndroid.LONG);
         // let location = await getLocation();
         // navigation.navigate('order-info', {
         //   lng: location.longitude,

@@ -25,6 +25,11 @@ export type AppScreenParamList = {
   };
   pickupScreen: undefined;
   deliveryScreen: undefined;
+  mapScreen: {
+    origin?: number[];
+    destination: number[];
+    type: 'pickup' | 'delivery';
+  };
   Wallet: undefined;
   AddWalletScreen: undefined;
   identity: {

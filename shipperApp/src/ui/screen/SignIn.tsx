@@ -9,56 +9,80 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableHighlight,
+  ToastAndroid,
 } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import {Axios} from '../../lib/utils/axios';
-import {setToken} from '../../lib/utils/token';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import Loading from '../component/Loading';
-import {useDriver} from '../../lib/context/Driver/Context';
+import {useAuth} from '../../lib/context/auth.context';
+import {AppScreenParamList} from '../../types/ScreenParam';
 const SignInScreen = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<ParamListBase>;
+  readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
-  const {reload} = useDriver();
   const [password, setPassword] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
+  const {onLogin, reload} = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
+  const [isFormatPhone, setIsFormatPhone] = useState<boolean>(false);
   const handleSigIn = () => {
+    if (isFormatPhone) {
+      ToastAndroid.show('Số điện thoại không đúng', ToastAndroid.SHORT);
+      return;
+    } else if (!phone) {
+      ToastAndroid.show('Vui lòng nhập số điện thoại', ToastAndroid.SHORT);
+      return;
+    } else if (!password) {
+      ToastAndroid.show('Vui lòng nhập mật khẩu', ToastAndroid.SHORT);
+      return;
+    }
     setLoading(true);
-    new Axios()
-      .getInstance(false)
-      .post('/shipper/auth/sign-in', {
-        phone: phone,
-        password: password,
-      })
+    onLogin({phone, password})
       .then(res => {
-        if (res.data.status === 'success') {
-          console.log(res.data.data.data);
-          setToken({
-            accessToken: res.data.data.data.access_token,
-            refreshToken: res.data.data.data.refresh_token,
-            exp: res.data.data.data.exp,
-          }).then(() => {
+        if (res.status === 'success') {
+          setTimeout(() => {
+            setLoading(false);
             reload();
-            setTimeout(() => {
-              setLoading(false);
-              navigation.reset({
-                index: 0,
-                routes: [{name: 'home'}],
-              });
-            }, 1000);
-          });
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'home'}],
+            });
+          }, 1000);
         }
       })
       .catch(err => {
-        console.log(err);
-        Alert.alert('Error', 'Có lỗi xảy ra');
+        if (err.response.data.message === 'need_upload_identity') {
+          Alert.alert(
+            'Thông báo',
+            'Bạn chưa tải lên thông tin cá nhân. Vui lòng bấm tiếp tục để tải lên hình ảnh thông tin cá nhân.',
+            [
+              {
+                text: 'Hủy',
+                onPress: () => {},
+                style: 'cancel',
+              },
+              {
+                text: 'Tiếp tục',
+                onPress: () => {
+                  navigation.navigate('identity', {
+                    idShipper: Number(err.response.data.data),
+                  });
+                },
+                style: 'default',
+              },
+            ],
+          );
+        } else {
+          Alert.alert('Lỗi khi đăng nhập', err.response.data.message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
       });
   };
 
@@ -85,10 +109,31 @@ const SignInScreen = ({
               keyboardType="numeric"
               placeholderTextColor="#aaa"
               value={phone}
-              onChangeText={setPhone}
+              onChangeText={e => {
+                setPhone(e);
+              }}
+              onBlur={() => {
+                if (phone.match(/(0[3|5|7|8|9])+\d{8}\b/g)) {
+                  setIsFormatPhone(false);
+                } else {
+                  setIsFormatPhone(true);
+                }
+              }}
               autoCorrect={false}
             />
           </View>
+          {isFormatPhone && (
+            <Text
+              style={{
+                marginLeft: '7%',
+                color: 'red',
+                fontSize: 14,
+                marginTop: 4,
+              }}>
+              Số điện thoại không đúng
+            </Text>
+          )}
+
           <View style={styles.container_password}>
             <TextInput
               secureTextEntry={!showPassword}
@@ -180,11 +225,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   submit: {
-    marginRight: 40,
-    marginLeft: 40,
-    marginTop: 10,
-    paddingTop: 20,
-    paddingBottom: 20,
+    width: '80%',
+    position: 'absolute',
+    bottom: 20,
+    left: '10%',
+    paddingVertical: 15,
     backgroundColor: '#37A4E2',
     borderRadius: 10,
     borderWidth: 1,

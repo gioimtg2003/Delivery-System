@@ -1,13 +1,9 @@
-import {IDriver} from '../../../types/Driver';
 import {IOrder} from '../../../types/Order';
 import {IWallet} from '../../../types/Wallet';
 
 export interface DriverState {
-  driver?: IDriver;
   wallet?: IWallet[];
   orderList?: IOrder[];
-  reloadProfile?: boolean;
-  isAuth?: boolean;
   reloadHistoryWallet?: boolean;
   reloadOrderList?: boolean;
   warning?: {
@@ -20,11 +16,6 @@ export interface DriverState {
 }
 
 export enum DriverActionType {
-  SET_DRIVER,
-  SET_ONLINE,
-  SET_OFFLINE,
-  RELOAD,
-  SET_AUTH,
   SET_HISTORY_WALLET,
   RELOAD_HISTORY_WALLET,
   SET_ORDER_LIST,

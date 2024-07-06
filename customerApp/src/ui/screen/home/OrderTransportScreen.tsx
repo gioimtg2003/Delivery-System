@@ -34,7 +34,7 @@ const OrderTransportScreen = ({
   readonly navigation: NavigationProp<IPramListScreen>;
 }): React.ReactElement => {
   const [selectTransport, setSelectTransport] = useState<
-    (CostInfo & ITransport) | null
+    (CostInfo & ITransport) | null | undefined
   >();
   const [coordinateSender, setCoordinateSender] = useState<ICoordinate | null>(
     null,

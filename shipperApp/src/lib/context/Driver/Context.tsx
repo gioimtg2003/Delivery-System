@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
 } from 'react';
 import {DriverAction, DriverActionType, DriverState} from './type';
@@ -11,11 +12,12 @@ import {DriverReducer} from './reducer';
 import {axiosInstance} from '../../utils/axios';
 import {ToastAndroid} from 'react-native';
 import Toast from 'react-native-toast-message';
+import {useAuth} from '../auth.context';
+import {initSocket} from '../../utils/socket';
 import GetCurrentLocation from '../../utils/GetCurrentLocation';
+import HashPermissionLocation from '../../utils/HashPermissionLocataion';
 
 const initState: DriverState = {
-  driver: undefined,
-  reloadProfile: false,
   showWarning: false,
 };
 
@@ -24,41 +26,38 @@ const useDriverSource = () => {
     DriverReducer,
     initState,
   );
-
+  const {isLoggedIn, driver, jwt} = useAuth();
+  const socket = useMemo(() => initSocket(), []);
   useEffect(() => {
     (async () => {
-      try {
-        let driver = await (await axiosInstance()).get('/shipper');
-        if (driver.data.status === 'success') {
-          console.log(driver.data.data);
-          dispatch({
-            type: DriverActionType.SET_DRIVER,
-            payload: {
-              driver: driver.data.data,
-            },
-          });
-          dispatch({
-            type: DriverActionType.SET_AUTH,
-            payload: {
-              isAuth: true,
-            },
-          });
-        }
-      } catch (err) {
-        console.log(err);
-        dispatch({
-          type: DriverActionType.SET_AUTH,
-          payload: {
-            isAuth: false,
-          },
+      console.log('Auth Socket');
+      console.log(isLoggedIn);
+      console.log(jwt);
+      if (isLoggedIn === true && jwt !== null) {
+        console.log('Auth Socket');
+        socket.auth = {token: jwt};
+        socket.connect();
+        socket.on('invalidToken', async () => {
+          console.log('Invalid Token');
+          socket.auth = {token: jwt};
+          socket.connect();
+          console.log('Reconnect');
+        });
+        socket.on('connect', () => {
+          console.log('Connected to socket');
         });
       }
     })();
-  }, [state.reloadProfile]);
+
+    return () => {
+      socket.off('connect');
+      socket.off('invalidToken');
+    };
+  }, [isLoggedIn, socket, jwt]);
 
   useEffect(() => {
     (async () => {
-      if (state.isAuth === true) {
+      if (isLoggedIn === true) {
         try {
           let historyWallet = await (
             await axiosInstance()
@@ -76,10 +75,37 @@ const useDriverSource = () => {
         }
       }
     })();
-  }, [state.isAuth, state.reloadHistoryWallet]);
+  }, [isLoggedIn, state.reloadHistoryWallet]);
 
   useEffect(() => {
-    if (state.isAuth === true && state.driver?.OnlineStatus === 1) {
+    // if (isLoggedIn === true) {
+    //   let intervalId = _BackgroundTimer.setInterval(async () => {
+    //     try {
+    //       const hashPermission = await HashPermissionLocation();
+    //       if (hashPermission === true) {
+    //         // const {latitude, longitude} = await GetCurrentLocation();
+    //         // let data = {
+    //         //   transport: String(driver?.idTransport),
+    //         //   orderId: String(driver?.idOrder),
+    //         //   lat: latitude,
+    //         //   lng: longitude,
+    //         // };
+    //         // socket.emit('TrackingOrder', data);
+    //       }
+    //     } catch (err: any) {
+    //       console.error(err);
+    //     }
+    //   }, 10000);
+    //   return () => {
+    //     _BackgroundTimer.clearInterval(intervalId);
+    //   };
+    // } else {
+    //   return;
+    // }
+  }, [socket, isLoggedIn, driver?.idTransport, driver?.idOrder]);
+
+  useEffect(() => {
+    if (isLoggedIn === true && driver?.OnlineStatus === 1) {
       (async () => {
         try {
           let data = await (await axiosInstance()).get('/shipper/order');
@@ -102,60 +128,44 @@ const useDriverSource = () => {
         }
       })();
     }
-  }, [
-    state.driver?.Status,
-    state.driver?.OnlineStatus,
-    state.isAuth,
-    state.reloadOrderList,
-  ]);
+  }, [state.reloadOrderList, isLoggedIn, driver]);
 
-  const changeOnline = useCallback(async (online: boolean) => {
-    console.log(online);
-    try {
-      let latitude: number = 0,
-        longitude: number = 0;
-      if (online === true) {
-        let {latitude: a, longitude: b} = await GetCurrentLocation();
-        latitude = a;
-        longitude = b;
-      }
-      let update = await (
-        await axiosInstance()
-      ).put('/shipper/status', {online, latitude, longitude});
-      if (update.data.status === 'success') {
-        Toast.show({
-          type: 'success',
-          text1: 'Cập nhật trạng thái thành công!',
-          text1Style: {fontSize: 16, fontWeight: 'normal'},
-        });
-        dispatch({
-          type: DriverActionType.RELOAD,
-        });
-      } else {
-        ToastAndroid.show(
-          'Cập nhật trạng thái không thành công, vui lòng thử lại sau!',
-          ToastAndroid.SHORT,
-        );
-      }
-    } catch (err: any) {
-      console.log(err.response.data);
-      if (err.response.data.message === 'driver_is_delivering') {
-        ToastAndroid.show('Bạn đang có đơn hàng cần giao!', 5000);
-      } else {
-        ToastAndroid.show(
-          'Có lỗi xảy ra vui lòng thử lại sau!',
-          ToastAndroid.SHORT,
-        );
-      }
+  useEffect(() => {
+    if (
+      isLoggedIn === true &&
+      driver?.OnlineStatus === 1 &&
+      driver?.Status === 'Delivering' &&
+      driver?.idOrder !== null
+    ) {
+      const interval = setInterval(async () => {
+        try {
+          const hashPermission = await HashPermissionLocation();
+          if (hashPermission === true) {
+            const {latitude, longitude} = await GetCurrentLocation();
+            let data = {
+              transport: String(driver.idTransport),
+              orderId: String(driver.idOrder),
+              lat: latitude,
+              lng: longitude,
+            };
+            socket.emit('TrackingOrder', data);
+          }
+        } catch (err: any) {
+          console.error(err);
+        }
+      }, 7000);
+      return () => {
+        clearInterval(interval);
+      };
     }
-  }, []);
-
-  const reload = useCallback(() => {
-    dispatch({
-      type: DriverActionType.RELOAD,
-    });
-  }, []);
-
+  }, [
+    driver?.idTransport,
+    driver?.OnlineStatus,
+    driver?.Status,
+    driver?.idOrder,
+    isLoggedIn,
+    socket,
+  ]);
   const reloadHistoryWallet = useCallback(() => {
     dispatch({
       type: DriverActionType.RELOAD_HISTORY_WALLET,
@@ -217,8 +227,7 @@ const useDriverSource = () => {
 
   return {
     state,
-    changeOnline,
-    reload,
+    socket,
     reloadHistoryWallet,
     reloadOrderList,
     showWarning,

@@ -1,5 +1,5 @@
 package com.shipperapp
-
+import android.content.res.Configuration
 import android.app.Application
 import android.util.Log
 import com.facebook.react.PackageList
@@ -11,19 +11,19 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.load
 import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.soloader.SoLoader
-import com.heanoria.library.reactnative.locationenabler.AndroidLocationEnablerPackage;
-import com.ocetnik.timer.BackgroundTimerPackage;
+// import com.heanoria.library.reactnative.locationenabler.AndroidLocationEnablerPackage;
+//import com.ocetnik.timer.BackgroundTimerPackage;
+//import com.agontuk.RNFusedLocation.RNFusedLocationPackage;
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost =
-      object : DefaultReactNativeHost(this) {
+     object : DefaultReactNativeHost(this) {
         override fun getPackages(): List<ReactPackage> =
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
-              add(AndroidLocationEnablerPackage())
+              // add(AndroidLocationEnablerPackage())
               add(ActivityStatePackage())
-              add(BackgroundTimerPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -32,6 +32,9 @@ class MainApplication : Application(), ReactApplication {
 
         override val isNewArchEnabled: Boolean = BuildConfig.IS_NEW_ARCHITECTURE_ENABLED
         override val isHermesEnabled: Boolean = BuildConfig.IS_HERMES_ENABLED
+        override fun getJSBundleFile(): String? {
+          return "http://10.0.2.2:8089/index.bundle?platform=android&dev=true&minify=false"
+        }
       }
 
   override val reactHost: ReactHost
@@ -50,4 +53,5 @@ class MainApplication : Application(), ReactApplication {
     reactHost.onHostDestroy();
     super.onTerminate()
   }
+
 }

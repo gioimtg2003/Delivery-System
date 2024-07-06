@@ -3,9 +3,9 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeMainScreen from '../ui/screen/Home/HomeMainScreen';
 import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import OrderScreen from '../ui/screen/Home/OrderScreen';
 import OrderListScreen from '../ui/screen/Home/Order/OrderListScreen';
 import WalletScreen from '../ui/screen/Home/WalletScreen';
+import PersonTab from '../ui/screen/PersonTab';
 
 const MyOrderIcon = ({color, size}: {color: string; size: number}) => {
   return <Feather name="list" size={size} color={color} />;
@@ -60,7 +60,7 @@ const HomeTabs = (): React.ReactElement => {
       />
       <HomeTab.Screen
         name="home_main3"
-        component={HomeMainScreen}
+        component={PersonTab}
         options={({route}) => ({
           tabBarIcon: ProfileIcon,
           tabBarLabel: 'Tài xế',

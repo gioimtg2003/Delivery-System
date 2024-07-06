@@ -74,12 +74,12 @@ const OTPScreen = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Xác minh số điện thoại của bạn</Text>
+      <Text style={styles.title}>Xác minh tài khoản của bạn</Text>
       <View style={styles.desContianer}>
         <Text style={styles.des}>
-          Mã xác minh 4 chữ số đã được gửi đến số điện thoại
+          Mã xác minh 4 chữ số đã được gửi đến email của bạn
         </Text>
-        <Text style={styles.phone}>+84 {route.params.phone}</Text>
+        <Text style={styles.phone}>{route.params.email}</Text>
       </View>
       <OtpInput
         numberOfDigits={4}

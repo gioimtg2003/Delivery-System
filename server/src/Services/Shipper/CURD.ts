@@ -10,7 +10,7 @@ export async function GETDriverByIdService(
 ): Promise<void> {
     try {
         let [driver] = await pool.execute<(IShipper & RowDataPacket)[]>(
-            "SELECT id, Balance, Status, Name, Phone, Email, Province, District, Ward, DetailsAddress, Created, OnlineStatus, idOrder FROM shippers WHERE id = ?",
+            "SELECT id, Balance, Status, Name, Phone, Email, Province, District, Ward, DetailsAddress, Created, OnlineStatus, idOrder, idTransport FROM shippers WHERE id = ?",
             [id]
         );
         if (driver.length === 0) {

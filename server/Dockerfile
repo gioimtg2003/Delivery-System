@@ -6,12 +6,12 @@ COPY tsconfig.json ./
 COPY . .
 RUN npm install typescript -g\
     && npm install\
-    && npm install --save-dev @types/node\
-    && 
+    && npm install --only=dev\
+    && npm run build
 
 
 FROM node:20-alpine
-ENV NODE_ENV=production
+# ENV NODE_ENV=production
 
 WORKDIR /app
 COPY package*.json ./

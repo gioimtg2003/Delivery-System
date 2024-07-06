@@ -12,7 +12,7 @@ const Button = ({
   style,
   onPress,
   color = colors.placeholder,
-  disabled = true,
+  disabled = false,
 }: {
   readonly title: string;
   readonly style?: StyleProp<ViewStyle>;

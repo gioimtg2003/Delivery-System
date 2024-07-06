@@ -151,6 +151,7 @@ const OrderInfoScreen = ({
     })();
   }, [
     COD,
+    ReLoadHistoryOrder,
     details,
     isCOD,
     isTakeShippingFee,
@@ -282,10 +283,12 @@ const OrderInfoScreen = ({
                 setFocus({...focus, sendPhone: true});
               }}
               style={styles.inputPhone}
-              placeholder="Số điện thoại"
+              placeholder="Số điện thoại người gửi"
               keyboardType="phone-pad"
               value={phone}
-              onChangeText={e => setPhone(formatPhoneNumber(e))}
+              onChangeText={e =>
+                setPhone(formatPhoneNumber(e[0] === '0' ? e.slice(1) : e))
+              }
               placeholderTextColor={'#aaa'}
               onBlur={() => {
                 setFocus({...focus, sendPhone: false});
@@ -363,10 +366,14 @@ const OrderInfoScreen = ({
                 setFocus({...focus, receivePhone: true});
               }}
               style={styles.inputPhone}
-              placeholder="Số điện thoại"
+              placeholder="Số điện thoại người nhận"
               keyboardType="phone-pad"
               value={receiverPhone}
-              onChangeText={e => setReceiverPhone(formatPhoneNumber(e))}
+              onChangeText={e =>
+                setReceiverPhone(
+                  formatPhoneNumber(e[0] === '0' ? e.slice(1) : e),
+                )
+              }
               placeholderTextColor={'#aaa'}
               onBlur={() => {
                 setFocus({...focus, receivePhone: false});
@@ -581,6 +588,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 2,
     color: 'black',
+    width: '80%',
   },
   body: {
     width: '100%',

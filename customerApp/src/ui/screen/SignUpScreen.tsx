@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
-  Alert,
   StyleSheet,
   Text,
   TextInput,
@@ -13,9 +12,10 @@ import colors from '../../lib/constant/color';
 import Feather from 'react-native-vector-icons/Feather';
 import Loading from '../components/Loading';
 import Button from '../components/Button';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
 import {Axios} from '../../lib/utils/axios';
 import {formatPhoneNumber} from '../../lib/utils/fornatPhoneNumber';
+import {IPramListScreen} from '../../lib/types/ParamListScreen';
 
 interface IFocus {
   phone?: boolean;
@@ -26,7 +26,7 @@ interface IFocus {
 const SignUpScreen = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<ParamListBase>;
+  readonly navigation: NavigationProp<IPramListScreen>;
 }) => {
   const [phone, setPhone] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -36,6 +36,7 @@ const SignUpScreen = ({
     setShowPassword(!showPassword);
   };
   const [warningPhone, setWarningPhone] = useState<boolean>(false);
+  const [warningEmail, setWarningEmail] = useState<boolean>(false);
   const [color, setColor] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [checkBox, setCheckBox] = useState<boolean>(false);
@@ -45,16 +46,35 @@ const SignUpScreen = ({
     email: false,
   });
   useEffect(() => {
-    if (!phone || !password || warningPhone) {
+    if (
+      !phone ||
+      !password ||
+      warningPhone ||
+      !email ||
+      warningEmail ||
+      !checkBox
+    ) {
       setColor('#bbb');
     } else {
       setColor(colors.placeholder);
     }
-  }, [phone, password, setColor, warningPhone]);
+  }, [phone, password, warningPhone, email, warningEmail, checkBox]);
 
   const handleSignUp = useCallback(() => {
-    if (!phone || !password || warningPhone || !checkBox) {
-      Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin');
+    if (!phone) {
+      ToastAndroid.show('Vui lòng nhập số điện thoại', ToastAndroid.LONG);
+      return;
+    } else if (!email) {
+      ToastAndroid.show('Vui lòng nhập email', ToastAndroid.LONG);
+      return;
+    } else if (!password) {
+      ToastAndroid.show('Vui lòng nhập mật khẩu', ToastAndroid.LONG);
+      return;
+    } else if (!checkBox) {
+      ToastAndroid.show('Vui lòng chấp nhận điều khoản', ToastAndroid.LONG);
+      return;
+    } else if (password.length < 6) {
+      ToastAndroid.show('Mật khẩu phải có ít nhất 6 ký tự', ToastAndroid.LONG);
       return;
     }
     setLoading(true);
@@ -70,8 +90,8 @@ const SignUpScreen = ({
         setTimeout(() => {
           setLoading(false);
           navigation.navigate('otp-screen', {
-            idCustomer: 1,
             phone: phone,
+            email: email,
           });
         }, 1500);
       })
@@ -80,7 +100,7 @@ const SignUpScreen = ({
         ToastAndroid.show(err.response.data.message, ToastAndroid.SHORT);
         setLoading(false);
       });
-  }, [phone, password, warningPhone, checkBox, setLoading, navigation, email]);
+  }, [phone, password, checkBox, setLoading, navigation, email]);
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>Tạo tài khoản của bạn</Text>
@@ -100,10 +120,13 @@ const SignUpScreen = ({
           placeholder="Số điện thoại"
           keyboardType="phone-pad"
           value={phone}
-          onChangeText={e => setPhone(formatPhoneNumber(e))}
+          onChangeText={e =>
+            setPhone(formatPhoneNumber(e[0] === '0' ? e.slice(1) : e))
+          }
           placeholderTextColor={'#aaa'}
           onBlur={() => {
             setFocus({...focus, phone: false});
+            console.log(phone);
             if (
               (phone.replace(/ /g, '').length < 9 ||
                 phone.replace(/ /g, '').length >= 10) &&
@@ -120,7 +143,7 @@ const SignUpScreen = ({
         <Text style={styles.warnigPhone}>Số điện thoại không hợp lệ</Text>
       )}
       <TextInput
-        placeholder="Email (tùy chọn)"
+        placeholder="Email"
         style={[
           styles.inputEmail,
           {borderColor: focus.email ? colors.placeholder : '#eee'},
@@ -134,8 +157,16 @@ const SignUpScreen = ({
         }}
         onBlur={() => {
           setFocus({...focus, email: false});
+          if (/^\S+@\S+\.\S+$/.test(email)) {
+            setWarningEmail(false);
+          } else {
+            setWarningEmail(true);
+          }
         }}
       />
+      {warningEmail && (
+        <Text style={styles.warnigPhone}>Email không đúng định dạng</Text>
+      )}
       <View
         style={[
           styles.container_password,
@@ -195,7 +226,6 @@ const SignUpScreen = ({
         onPress={handleSignUp}
         style={styles.btnSignUp}
         color={color}
-        disabled={!(phone && password && !warningPhone)}
       />
       {loading && <Loading />}
     </SafeAreaView>
@@ -256,6 +286,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 2,
     color: 'black',
+    width: '90%',
   },
   container_password: {
     marginTop: 20,

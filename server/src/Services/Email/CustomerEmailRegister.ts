@@ -1,25 +1,11 @@
-import { Oauth } from "../../Configs/oauth";
 import { Log } from "../../Lib/Utils/Log";
 import { EmailProvider } from "../Implements/EmailProvider";
 import { SendMailOptions } from "nodemailer";
-import { JsonWebToken } from "../JsonWebToken";
 
 export class CustomerEmailRegister extends EmailProvider {
     private options: SendMailOptions;
-    private token: JsonWebToken;
-    private id_user: string;
-    private email: string;
-    constructor(
-        email: string,
-        shop_name: string,
-        name: string,
-        phone: string,
-        id_user: string
-    ) {
+    constructor(email: string, phone: string, code: number) {
         super();
-        this.token = new JsonWebToken();
-        this.id_user = id_user;
-        this.email = email;
         this.options = {
             from: "<p>Shippy Smile<>",
             to: email,
@@ -68,9 +54,8 @@ export class CustomerEmailRegister extends EmailProvider {
                             font-size: 22px;
                         "
                     >
-                        Chào
                         <span style="font-weight: bold; color: #55a7ff"
-                            >${name}</span
+                            >Chào mừng bạn đã đến với Shippy</span
                         >
                     </p>
                 </div>
@@ -269,105 +254,6 @@ export class CustomerEmailRegister extends EmailProvider {
                                                     "
                                                 ></td>
                                             </tr>
-                                            <tr>
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td
-                                                    style="
-                                                        width: 30%;
-                                                        padding: 8px 0;
-                                                        background-color: #ffffff;
-                                                        border-bottom: 1px solid
-                                                            #f2f1f7;
-                                                    "
-                                                >
-                                                    Tên khách hàng
-                                                </td>
-
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td width="1px"></td>
-
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td
-                                                    style="
-                                                        padding: 8px 0;
-                                                        background-color: #ffffff;
-                                                        border-bottom: 1px solid
-                                                            #f2f1f7;
-                                                        color: #071a38;
-                                                    "
-                                                >
-                                                ${name}
-                                                </td>
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                            </tr>
-                                            <tr>
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td
-                                                    style="
-                                                        width: 30%;
-                                                        padding: 8px 0;
-                                                        background-color: #ffffff;
-                                                    "
-                                                >
-                                                    Tên cửa hàng
-                                                </td>
-
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td width="1px"></td>
-
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                                <td
-                                                    style="
-                                                        padding: 8px 0;
-                                                        background-color: #ffffff;
-                                                        color: #071a38;
-                                                    "
-                                                >
-                                                ${shop_name}
-                                                </td>
-                                                <td
-                                                    style="
-                                                        width: 16px;
-                                                        background-color: #ffffff;
-                                                    "
-                                                ></td>
-                                            </tr>
-
                                             <tr
                                                 valign="top"
                                                 height="8px"
@@ -405,20 +291,16 @@ export class CustomerEmailRegister extends EmailProvider {
                     "
                 >
                     <p>
-                        Vui lòng cLick vào nút kích hoạt tài khoản bên dưới để
-                        kích hoạt tài khoản cho cửa hàng của bạn. 
+                        Mã xác thực tài khoản của bạn ở bên dưới. 
                     </p>
-                    <p>Nếu bạn không
-                    thực hiện thao tác này, tài khoản của bạn sẽ không được
+                    <p>Nếu bạn không nhập mã này, tài khoản của bạn sẽ không được
                     kích hoạt.</p>
                     <i style="margin-top: 5px;">
-                    Lưu ý: Thời gian kích hoạt tài khoản là 15 phút
+                    Lưu ý: Thời gian hiệu lực của mã là 15 phút
                     </i>
                 </div>
                 <div style="margin-top: 50px; text-align: center">
-                    <a href="${
-                        Oauth.GOOGLE_SUCCESS_REDIRECT_URL
-                    }/verify?user=customer&token=${this.getToken()}&id=${id_user}" target="_blank"
+                    <a href="#" target="_blank"
                     style="
                     background-color: #55a7ff;
                     color: #ffffff;
@@ -429,7 +311,7 @@ export class CustomerEmailRegister extends EmailProvider {
                     box-shadow: 0 0px 10px rgba(0, 0, 0, 0.3);
                 "
             >
-                Kích hoạt ngay
+                ${code}
             </a>
                 </div>
             </div>
@@ -451,19 +333,5 @@ export class CustomerEmailRegister extends EmailProvider {
                 );
             }
         });
-    }
-    private getToken(): string {
-        let payload = {
-            id: this.id_user,
-            email: this.email,
-            scope: "verify.email",
-            role: "customer",
-        };
-
-        let token_uri = this.token.signOtherToken<typeof payload>(
-            payload,
-            60 * 15
-        );
-        return token_uri;
     }
 }

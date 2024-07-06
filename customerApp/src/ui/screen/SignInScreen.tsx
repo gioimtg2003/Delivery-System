@@ -19,7 +19,7 @@ import Loading from '../components/Loading';
 import {Axios} from '../../lib/utils/axios';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 import {formatPhoneNumber} from '../../lib/utils/fornatPhoneNumber';
-import {setToken} from '../../lib/utils/token';
+import {useAuth} from '../../lib/context/auth.context';
 
 interface IFocus {
   phone?: boolean;
@@ -43,62 +43,42 @@ const SignInScreen = ({
     phone: false,
     password: false,
   });
+  const {onLogin} = useAuth();
   const handleLogin = useCallback(() => {
     setLoading(true);
     if (!phone || !password) {
       Alert.alert('Thông báo', 'Vui lòng nhập đầy đủ thông tin');
       return;
     }
-    new Axios()
-      .getInstance()
-      .post('/customer/auth/sign-in', {
-        phone: '84' + phone.replace(/ /g, ''),
-        password,
-      })
+    onLogin({phone, password})
       .then(res => {
-        if (res.data.status === 'success') {
-          console.log(res.data.data);
-          if (res.data.data.data === 'need_verify') {
-            new Axios()
-              .getInstance()
-              .post('/customer/auth/resend-otp', {
-                Phone: '84' + phone.replace(/ /g, ''),
-              })
-              .then(res => {
-                if (res.data.code === 200) {
-                  navigation.navigate('otp-screen', {phone});
-                }
-              })
-              .catch(err => {
-                console.log(err?.response);
-                ToastAndroid.show(
-                  err?.response?.data.message,
-                  ToastAndroid.SHORT,
-                );
-              });
-          } else {
-            console.log('Data from server:');
-            console.log(res.data.data.data);
-            setToken({
-              accessToken: res.data.data.data.access_token,
-              refreshToken: res.data.data.data.refresh_token,
-              exp: res.data.data.data.exp,
+        if (res.status === 'need_verify') {
+          new Axios()
+            .getInstance()
+            .post('/customer/auth/resend-otp', {
+              Phone: '84' + phone.replace(/ /g, ''),
             })
-              .then(() => {
-                navigation.navigate('home');
-              })
-              .catch(err => {
-                console.log(err);
-                ToastAndroid.show('Lỗi setToken', ToastAndroid.SHORT);
-              });
-          }
+            .then(res => {
+              if (res.data.code === 200) {
+                navigation.navigate('otp-screen', {phone});
+              }
+            })
+            .catch(err => {
+              console.log(err?.response);
+              ToastAndroid.show(
+                err?.response?.data.message,
+                ToastAndroid.SHORT,
+              );
+            });
+        } else {
+          navigation.navigate('home');
         }
+
         setTimeout(() => {
           setLoading(false);
         }, 1200);
       })
-      .catch((err: any) => {
-        console.log(err.response.data);
+      .catch(err => {
         if (err?.response?.data.message === 'account_not_found') {
           ToastAndroid.show('Tài khoản không tồn tại', ToastAndroid.SHORT);
         } else if (err?.response?.data.message === 'password_is_incorrect') {
@@ -107,10 +87,8 @@ const SignInScreen = ({
           ToastAndroid.show('Lỗi Khi SignIn', ToastAndroid.SHORT);
         }
       })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [phone, password, setLoading, navigation]);
+      .finally(() => setLoading(false));
+  }, [phone, password, setLoading, navigation, onLogin]);
 
   return (
     <SafeAreaView
@@ -146,7 +124,11 @@ const SignInScreen = ({
                   placeholder="Số điện thoại"
                   keyboardType="phone-pad"
                   value={phone}
-                  onChangeText={e => setPhone(formatPhoneNumber(e))}
+                  onChangeText={e =>
+                    setPhone(
+                      formatPhoneNumber(e[0] === '0' ? e.replace('0', '') : e),
+                    )
+                  }
                   placeholderTextColor={'#aaa'}
                   onBlur={() => {
                     setFocus({...focus, phone: false});
@@ -246,6 +228,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginLeft: 2,
     color: 'black',
+    width: '80%',
   },
   container_phone: {
     width: '80%',

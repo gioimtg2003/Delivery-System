@@ -5,22 +5,6 @@ export const DriverReducer = (
   action: DriverAction,
 ): DriverState => {
   switch (action.type) {
-    case DriverActionType.SET_DRIVER:
-      return {
-        ...state,
-        driver: action.payload?.driver,
-      };
-    case DriverActionType.RELOAD:
-      return {
-        ...state,
-        reloadProfile: !state.reloadProfile,
-      };
-    case DriverActionType.SET_AUTH:
-      return {
-        ...state,
-        isAuth: action.payload?.isAuth,
-      };
-
     case DriverActionType.SET_HISTORY_WALLET:
       return {
         ...state,

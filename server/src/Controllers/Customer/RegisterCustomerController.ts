@@ -7,14 +7,14 @@ import { RegisterCustomer } from "../../Services/Auth/RegisterCustomer";
 export class RegisterCustomerController extends BaseController {
     Controller(req: Request, res: Response): Response | void {
         const { Phone, Password, Email } = req.body;
-        if (!Phone || !Password) {
+        if (!Phone || !Password || !Email) {
             return res
                 .status(HttpCode.BAD_REQUEST)
                 .json(
                     FormatApi(
                         HttpCode.BAD_REQUEST,
                         "failed",
-                        "Phone or Password is required",
+                        "Phone, Email or Password  is required",
                         null,
                         new Date()
                     )

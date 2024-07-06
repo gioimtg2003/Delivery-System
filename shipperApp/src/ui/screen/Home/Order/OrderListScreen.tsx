@@ -15,12 +15,12 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import ModalOnline from '../../../component/ModalOnline';
 import ListOrder from '../../../component/ListOrder';
 import {NavigationProp} from '@react-navigation/native';
-import {useDriver} from '../../../../lib/context/Driver/Context';
 import Loading from '../../../component/Loading';
 import {AppScreenParamList} from '../../../../types/ScreenParam';
 const icon = require('../../../../../assets/images/Logo-2.png');
 import {promptForEnableLocationIfNeeded} from 'react-native-android-location-enabler';
 import HashPermissionLocation from '../../../../lib/utils/HashPermissionLocataion';
+import {useAuth} from '../../../../lib/context/auth.context';
 const POLLING_INTERVAL = 3000;
 
 const OrderListScreen = ({
@@ -29,7 +29,7 @@ const OrderListScreen = ({
   readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const {state} = useDriver();
+  const {driver} = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
 
@@ -67,10 +67,10 @@ const OrderListScreen = ({
   }, []);
 
   const click = useCallback(() => {
-    if (state.driver?.idOrder) {
-      navigation.navigate('orderDelivery', {id: state.driver.idOrder});
+    if (driver?.idOrder) {
+      navigation.navigate('orderDelivery', {id: driver.idOrder});
     }
-  }, [state.driver?.idOrder, navigation]);
+  }, [driver?.idOrder, navigation]);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -83,11 +83,18 @@ const OrderListScreen = ({
               marginRight: 5,
             }}
           />
-          <Text>{state.driver?.Name}</Text>
+          <Text
+            style={{
+              color: 'black',
+              fontSize: 16,
+              marginRight: 5,
+            }}>
+            {driver?.Name}
+          </Text>
           <Entypo
             name="dot-single"
             size={25}
-            color={state.driver?.OnlineStatus ? 'green' : 'gray'}
+            color={driver?.OnlineStatus ? 'green' : 'gray'}
           />
         </View>
         <SimpleLineIcons
@@ -100,7 +107,7 @@ const OrderListScreen = ({
         />
       </View>
       <View style={styles.main}>
-        {state.driver?.OnlineStatus ? (
+        {driver?.OnlineStatus ? (
           <ListOrder navigation={navigation} />
         ) : (
           <View
@@ -121,7 +128,7 @@ const OrderListScreen = ({
           </View>
         )}
       </View>
-      {state.driver?.Status === 'Delivering' && state.driver?.idOrder && (
+      {driver?.Status === 'Delivering' && driver?.idOrder && (
         <TouchableOpacity
           activeOpacity={0.5}
           style={styles.order_require}
