@@ -5,7 +5,7 @@ import Button from '../component/Button';
 import {launchCamera} from 'react-native-image-picker';
 import PlaceImgIdentity from '../component/PlaceImgIdentity';
 
-import {axiosInstance} from '../../lib/utils/axios';
+import {Axios} from '../../lib/utils/axios';
 import IMAGE from '../../lib/constant/img';
 import {AppScreenParamList} from '../../types/ScreenParam';
 import HashPermissionCam from '../../lib/utils/HashPermissionCam';
@@ -41,19 +41,16 @@ const IdentityScreen = ({
         const result = await launchCamera({
           mediaType: 'photo',
           cameraType: 'back',
-          maxWidth: 500,
-          maxHeight: 500,
-          quality: 0.5,
         });
         if (!result.didCancel) {
-          const {data} = await (
-            await axiosInstance()
-          ).post('/media/sign-url', {
-            fileName: result.assets?.[0].uri,
-            typeImg: IMAGE.IDENTITY,
-            contentType: result.assets?.[0].type,
-            id: route.params.idShipper,
-          });
+          const {data} = await new Axios()
+            .getInstance()
+            .post('/media/sign-url', {
+              fileName: result.assets?.[0].uri,
+              typeImg: IMAGE.IDENTITY,
+              contentType: result.assets?.[0].type,
+              id: route.params.idShipper,
+            });
           let putImg = await UploadS3(
             result.assets?.[0].uri as string,
             result.assets?.[0].type as string,

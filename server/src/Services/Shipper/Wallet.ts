@@ -29,6 +29,7 @@ const AddWalletService = async (
             callback("failed", null);
         }
     } catch (error) {
+        console.error(error);
         Log.Error(new Date(), error, "AddWalletService");
         callback("failed", null);
     }

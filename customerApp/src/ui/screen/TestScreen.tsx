@@ -1,93 +1,211 @@
-import React, {useState} from 'react';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-} from 'react-native-reanimated';
-import {
-  Gesture,
-  GestureDetector,
-  GestureHandlerRootView,
-  PanGestureHandler,
-  State,
-} from 'react-native-gesture-handler';
-import {StyleSheet, Dimensions, Text, View} from 'react-native';
-import ReactNativeModal from 'react-native-modal';
+import {Camera, LineLayer, MapView, ShapeSource} from '@rnmapbox/maps';
+import {Button, View} from 'react-native';
+import React, {
+  useState,
+  useRef,
+  ComponentProps,
+  useMemo,
+  forwardRef,
+} from 'react';
 
-function clamp(val, min, max) {
-  return Math.min(Math.max(val, min), max);
-}
+type Position = [number, number];
 
-const {height} = Dimensions.get('screen');
+type CrosshairProps = {
+  size: number;
+  w: number;
+  onLayout: ComponentProps<typeof View>['onLayout'];
+};
+const Crosshair = forwardRef<View, CrosshairProps>(
+  ({size, w, onLayout}: CrosshairProps, ref) => (
+    <View
+      onLayout={onLayout}
+      ref={ref}
+      style={{
+        width: 2 * size + 1,
+        height: 2 * size + 1,
+      }}>
+      <View
+        style={{
+          position: 'absolute',
+          left: size,
+          top: 0,
+          bottom: 0,
+          borderColor: 'red',
+          borderWidth: w / 2.0,
+        }}
+      />
+      <View
+        style={{
+          position: 'absolute',
+          top: size,
+          left: 0,
+          right: 0,
+          borderColor: 'red',
+          borderWidth: w / 2.0,
+        }}
+      />
+    </View>
+  ),
+);
 
-export default function TestScreen() {
-  const [isModalVisible, setModalVisible] = useState(false);
-  const translationY = useSharedValue(0);
-  const prevTranslationY = useSharedValue(0);
+const CrosshairOverlay = ({
+  onCenter,
+}: {
+  onCenter: (x: [number, number]) => void;
+}) => {
+  const ref = useRef<View>(null);
 
-  const animatedStyles = useAnimatedStyle(() => ({
-    transform: [{translateY: translationY.value}],
-  }));
-
-  const [translateY, setTranslateY] = useState(0);
-
-  const handleGesture = event => {
-    const {translationY, state} = event.nativeEvent;
-    if (state === State.ACTIVE) {
-      setTranslateY(translationY);
-    } else if (state === State.END) {
-      if (translationY > height / 3) {
-        setModalVisible(false);
-      } else {
-        setTranslateY(0);
-      }
-    }
-  };
-
+  if (ref.current != null) {
+    console.log('=> ref.current', ref.current != null);
+  }
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <ReactNativeModal
-        isVisible={isModalVisible}
-        style={styles.modal}
-        onBackdropPress={() => setModalVisible(false)}
-        onSwipeComplete={() => setModalVisible(false)}
-        swipeDirection="down">
-        <PanGestureHandler
-          onGestureEvent={handleGesture}
-          onHandlerStateChange={handleGesture}>
-          <View style={[styles.modalContent, {transform: [{translateY}]}]}>
-            <View style={styles.handle} />
-            <Text>Modal Content</Text>
-          </View>
-        </PanGestureHandler>
-      </ReactNativeModal>
-    </GestureHandlerRootView>
+    <View
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        alignContent: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+      pointerEvents="none">
+      <Crosshair
+        size={20}
+        w={1.0}
+        ref={ref}
+        onLayout={e => {
+          const {x, y, width, height} = e.nativeEvent.layout;
+          onCenter([x + width / 2.0, y + height / 2.0]);
+        }}
+      />
+    </View>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modal: {
-    justifyContent: 'flex-end',
-    margin: 0,
-    backgroundColor: 'red',
-  },
-  modalContent: {
-    backgroundColor: 'red',
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    minHeight: height / 3,
-  },
-  handle: {
-    width: 40,
-    height: 6,
-    backgroundColor: 'red',
-    borderRadius: 3,
-    alignSelf: 'center',
-    marginVertical: 8,
-  },
-});
+const lineLayerStyle = {
+  lineColor: '#ff0000',
+  lineWidth: 5,
+};
+
+const Polygon = ({coordinates}: {coordinates: Position[]}) => {
+  const features: GeoJSON.FeatureCollection = useMemo(() => {
+    return {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          id: 'a-feature',
+          geometry: {
+            type: 'LineString',
+            coordinates,
+          },
+          properties: {},
+        } as const,
+      ],
+    };
+  }, [coordinates]);
+  console.log('=> features', JSON.stringify(features));
+  return (
+    <ShapeSource id={'shape-source-id-0'} shape={features}>
+      <LineLayer id={'line-layer'} style={lineLayerStyle} />
+    </ShapeSource>
+  );
+};
+
+const TestScreen = () => {
+  const [coordinates, setCoordinates] = useState<Position[]>([]);
+  const [lastCoordinate, setLastCoordinate] = useState<Position>([0, 0]);
+  const [started, setStarted] = useState(false);
+  const [crosshairPos, setCrosshairPos] = useState([0, 0]);
+
+  const coordinatesWithLast = useMemo(() => {
+    return [...coordinates, lastCoordinate];
+  }, [coordinates, lastCoordinate]);
+
+  const map = useRef<MapView>(null);
+
+  const newLocal = 'row';
+  return (
+    <View style={{flex: 1}}>
+      <View>
+        {!started ? (
+          <Button
+            title="start"
+            onPress={() => {
+              setStarted(true);
+              setCoordinates([lastCoordinate]);
+            }}
+          />
+        ) : (
+          <View
+            style={{
+              flexDirection: newLocal,
+              justifyContent: 'center',
+              gap: 10,
+            }}>
+            <Button
+              title="add"
+              onPress={() => setCoordinates([...coordinates, lastCoordinate])}
+            />
+            <Button title="stop" onPress={() => setStarted(false)} />
+          </View>
+        )}
+      </View>
+      <View style={{flex: 1}}>
+        <MapView
+          ref={map}
+          style={{flex: 1}}
+          onCameraChanged={async e => {
+            const crosshairCoords = await map.current?.getCoordinateFromView(
+              crosshairPos,
+            );
+            console.log(
+              'Crosshair coords: ',
+              crosshairCoords,
+              'camera center:',
+              e.properties.center,
+            );
+            setLastCoordinate(crosshairCoords as Position);
+            if (crosshairCoords && started) {
+              setLastCoordinate(crosshairCoords as Position);
+            }
+          }}>
+          {started && <Polygon coordinates={coordinatesWithLast} />}
+          <Camera
+            defaultSettings={{
+              centerCoordinate: [-73.970895, 40.723279],
+              zoomLevel: 12,
+            }}
+          />
+        </MapView>
+        <CrosshairOverlay onCenter={c => setCrosshairPos(c)} />
+      </View>
+    </View>
+  );
+};
+
+export default TestScreen;
+
+/* end-example-doc */
+
+/** @type ExampleWithMetadata['metadata'] */
+const metadata = {
+  title: 'Draw Polyline',
+  tags: [
+    'LineLayer',
+    'ShapeSource',
+    'onCameraChanged',
+    'getCoordinateFromView',
+    'Overlay',
+  ],
+  docs: `This example shows a simple polyline editor. It uses \`onCameraChanged\` to get the center of the map and \`getCoordinateFromView\` 
+  to get the coordinates of the crosshair.
+  
+  The crosshair is an overlay that is positioned using \`onLayout\` and \`getCoordinateFromView\`.
+  
+  The \`ShapeSource\` is updated with the new coordinates and the \`LineLayer\` is updated with the new coordinates.`,
+};
+
+TestScreen.metadata = metadata;

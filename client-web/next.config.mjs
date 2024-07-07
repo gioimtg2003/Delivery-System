@@ -10,6 +10,12 @@ const nextConfig = {
                 pathname: "/**",
             },
             {
+                protocol: "https",
+                hostname: "apishippy.nguyenconggioi.me",
+                port: "",
+                pathname: "/**",
+            },
+            {
                 protocol: "http",
                 hostname: "localhost",
                 port: "3000",

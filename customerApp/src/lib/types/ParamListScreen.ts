@@ -6,7 +6,7 @@ export type IPramListScreen = {
   intro_1: undefined;
   'sign-in': undefined;
   'sign-up': undefined;
-  'otp-screen': {idCustomer: string; phone: string};
+  'otp-screen': {phone: string; email: string};
   home: undefined;
   transport: {
     senderAddress: string;
@@ -28,4 +28,6 @@ export type IListParamTabHome = {
     receiver?: IInfo;
     sender?: IInfo;
   };
+
+  order_list: undefined;
 };

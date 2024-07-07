@@ -9,20 +9,20 @@ import Animated, {
   Easing,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import {useCustomer} from '../../../lib/context/context';
+import {useAuth} from '../../../lib/context/auth.context';
 const icon = require('../../../../assets/images/Logo.png');
 const IntroScreen = ({
   navigation,
 }: {
   readonly navigation: NavigationProp<ParamListBase>;
 }) => {
-  const {state} = useCustomer();
+  const {isLoggedIn} = useAuth();
   const positionAnimation = useSharedValue({y: 0, scale: 1});
 
   useEffect(() => {
-    if (state.isAuth !== undefined) {
-      setTimeout(() => {
-        if (state.isAuth === true) {
+    setTimeout(() => {
+      if (isLoggedIn !== null) {
+        if (isLoggedIn === true) {
           navigation.reset({
             index: 0,
             routes: [{name: 'home'}],
@@ -33,9 +33,9 @@ const IntroScreen = ({
             routes: [{name: 'intro_1'}],
           });
         }
-      }, 2000);
-    }
-  }, [navigation, state]);
+      }
+    }, 2000);
+  }, [navigation, isLoggedIn]);
   useEffect(() => {
     positionAnimation.value = withSequence(
       withTiming({y: -20, scale: 1.2}, {duration: 500, easing: Easing.ease}),

@@ -14,6 +14,7 @@ import HistoryWallet from '../../component/HistoryWallet';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
 import {ConvertPrice} from '../../../lib/utils/converPrice';
 import {useDriver} from '../../../lib/context/Driver/Context';
+import {useAuth} from '../../../lib/context/auth.context';
 
 const WalletScreen = ({
   navigation,
@@ -21,8 +22,9 @@ const WalletScreen = ({
   readonly navigation: NavigationProp<ParamListBase>;
 }): React.ReactElement => {
   const data = [{key: 'header'}];
-  const {state, reload, reloadHistoryWallet} = useDriver();
+  const {reloadHistoryWallet} = useDriver();
   const [refreshing, setRefreshing] = useState(false);
+  const {reload, driver} = useAuth();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -57,7 +59,7 @@ const WalletScreen = ({
               </View>
               <Text style={styles.balanceTitle}>Số dư hiện có</Text>
               <Text style={styles.balance}>
-                {ConvertPrice(state.driver?.Balance as number)}
+                {ConvertPrice(driver?.Balance as number)}
               </Text>
               <View style={[styles.rowHeader, {marginTop: 20}]}>
                 <Text

@@ -5,7 +5,6 @@ import {
     CreateOrderService,
     GetOrderDetailService,
     HistoryOrderService,
-    PickedUpOrderService,
     UpdateStatusOrderService,
 } from "../../Services/Customer/Order.service";
 
@@ -144,59 +143,6 @@ export const HistoryOrderController = (
     });
 };
 
-export const PickedUpOrderController = (
-    req: Request,
-    res: Response
-): void | Response => {
-    const { id } = req.user as any;
-    const { id: idOrder } = req.body;
-    if (!idOrder) {
-        return res
-            .status(HttpCode.BAD_REQUEST)
-            .json(
-                FormatApi(
-                    HttpCode.BAD_REQUEST,
-                    "failed",
-                    "Missing the field",
-                    null,
-                    new Date()
-                )
-            );
-    }
-    PickedUpOrderService(
-        {
-            id: id,
-            idOrder,
-        },
-        (err, data) => {
-            if (err) {
-                return res
-                    .status(HttpCode.INTERNAL_ERROR)
-                    .json(
-                        FormatApi(
-                            HttpCode.INTERNAL_ERROR,
-                            "error",
-                            err,
-                            null,
-                            new Date()
-                        )
-                    );
-            }
-            return res
-                .status(HttpCode.OK)
-                .json(
-                    FormatApi(
-                        HttpCode.OK,
-                        "success",
-                        "Update successfully",
-                        data,
-                        new Date()
-                    )
-                );
-        }
-    );
-};
-
 export const GetOrderDetailController = (
     req: Request,
     res: Response
@@ -267,7 +213,7 @@ export const UpdateStatusOrderController = (req: Request, res: Response) => {
                 )
             );
     }
-    let _status = ["picked_up", "cancel"];
+    let _status = ["cancel"];
     if (_status.indexOf(status) === -1) {
         return res
             .status(HttpCode.BAD_REQUEST)

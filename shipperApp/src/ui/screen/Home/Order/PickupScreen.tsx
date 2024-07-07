@@ -61,6 +61,7 @@ const PickupScreen = ({
             type: 'success',
             text1: 'Lấy đơn thành công',
           });
+
           navigation.goBack();
         }
       }
@@ -85,9 +86,16 @@ const PickupScreen = ({
         <TouchableOpacity
           activeOpacity={0.8}
           onPress={() => {
-            Linking.openURL(
-              `https://www.google.com/maps/search/?api=1&query=${state.orderPickup?.SenderCoordinates}`,
-            );
+            navigation.navigate('mapScreen', {
+              destination: [
+                Number(state.orderPickup?.SenderCoordinates?.split(',')[1]),
+                Number(state.orderPickup?.SenderCoordinates?.split(',')[0]),
+              ],
+              type: 'pickup',
+            });
+            // Linking.openURL(
+            //   `https://www.google.com/maps/search/?api=1&query=${state.orderPickup?.SenderCoordinates}`,
+            // );
           }}
           style={[
             styles.iconContainer,

@@ -29,4 +29,5 @@ export interface ICustomer {
     address_detail?: string;
     Verify: boolean;
     OTP?: string;
+    role?: string;
 }

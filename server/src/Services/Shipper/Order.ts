@@ -9,7 +9,7 @@ import { CalculateDistance } from "../../Lib/Utils/CalculateDistance";
 import { CheckBalance } from "../../Lib/Utils/CheckBalance";
 import { PoolConnection } from "mysql2/promise";
 import { Status } from "../../Lib/Constants/Status";
-import { convertTimeStamp } from "../../Lib/Utils/converTimeStamp";
+import { getIO } from "../../socket";
 
 const GetOrdersService = async (
     id: number,
@@ -140,7 +140,7 @@ const PickupOrderService = async (
         conn = await pool.getConnection();
         await conn.beginTransaction();
         let [driver] = await conn.execute<(IShipper & RowDataPacket)[]>(
-            "select Balance, idTransport, OnlineStatus, Status from shippers where id = ?",
+            "select Balance, Name, idTransport, OnlineStatus, Status from shippers where id = ?",
             [data.idUser]
         );
         if (driver.length === 0) {
@@ -156,7 +156,7 @@ const PickupOrderService = async (
             driver[0].Status === "Free"
         ) {
             let [order] = await conn.execute<(IOrder & RowDataPacket)[]>(
-                'select ShippingFee from orders where id = ? and CurrentStatus = "pending" and isnull(idShipper)',
+                'select ShippingFee, idCustomer from orders where id = ? and CurrentStatus = "pending" and isnull(idShipper)',
                 [data.id]
             );
             if (order.length === 0) {
@@ -210,6 +210,11 @@ const PickupOrderService = async (
                     "Pickup order success",
                     "PickupOrderService"
                 );
+                getIO()
+                    .to(`customer-${order[0].idCustomer}`)
+                    .emit("pickedUpOrder", {
+                        data: `Đơn hàng của bạn được nhận bởi ${driver[0].Name}`,
+                    });
                 await conn.commit();
                 return callback(null, {
                     error: false,
@@ -285,7 +290,7 @@ const UpdatePickupOrderService = async (
 ): Promise<void> => {
     try {
         let [driver] = await pool.execute<(IShipper & RowDataPacket)[]>(
-            "select idOrder, Status, OnlineStatus from shippers where id = ? and idOrder is not null",
+            "select idOrder, Name, Status, OnlineStatus from shippers where id = ? and idOrder is not null",
             [id]
         );
         if (driver.length === 0) {
@@ -298,14 +303,23 @@ const UpdatePickupOrderService = async (
         } else {
             let [order] = await pool.execute<ResultSetHeader>(
                 "update orders set CurrentStatus = ? where id = ? and CurrentStatus = ? and idShipper = ?",
-                [Status.DELIVERY, driver[0].idOrder, Status.PICKED_UP, id]
+                [Status.PICKED_UP, driver[0].idOrder, Status.PENDING_PICKUP, id]
             );
             if (order.affectedRows === 0) {
                 return callback("cannot_update", null);
             } else {
+                let [order] = await pool.execute<(IOrder & RowDataPacket)[]>(
+                    "select idCustomer from orders where id = ? and idShipper = ?",
+                    [driver[0].idOrder, id]
+                );
+                getIO()
+                    .to(`customer-${order[0].idCustomer}`)
+                    .emit("pickedUpOrder", {
+                        data: `Đơn hàng của bạn đang được đi giao`,
+                    });
                 await pool.execute(
                     "insert into orderstatus (idOrder, Status) values (?, ?)",
-                    [driver[0].idOrder, Status.DELIVERY]
+                    [driver[0].idOrder, Status.PICKED_UP]
                 );
                 return callback(null, true);
             }
@@ -336,7 +350,7 @@ const DeliverySuccessOrderService = async (
         } else {
             let [order] = await pool.execute<ResultSetHeader>(
                 "update orders set CurrentStatus = ? where id = ? and CurrentStatus = ? and idShipper = ?",
-                [Status.SUCCESS, driver[0].idOrder, Status.DELIVERY, id]
+                [Status.SUCCESS, driver[0].idOrder, Status.PICKED_UP, id]
             );
             if (order.affectedRows === 0) {
                 return callback("cannot_update", null);
@@ -349,6 +363,17 @@ const DeliverySuccessOrderService = async (
                     "update shippers set Status = 'Free', idOrder = null where id = ?",
                     [id]
                 );
+                let [order] = await pool.execute<(IOrder & RowDataPacket)[]>(
+                    "select idCustomer from orders where id = ? and idShipper = ?",
+                    [driver[0].idOrder, id]
+                );
+                getIO()
+                    .to(`customer-${order[0].idCustomer}`)
+                    .emit("pickedUpOrder", {
+                        data: `Đơn hàng của bạn đã giao thành công`,
+                    });
+                // remove room orderId
+                getIO().socketsLeave(`order-${driver[0].idOrder}`);
                 return callback(null, true);
             }
         }

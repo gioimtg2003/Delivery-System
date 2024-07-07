@@ -16,49 +16,11 @@ import IntroScreen from '../ui/screen/Intro';
 import IdentityScreen from '../ui/screen/IdentityScreen';
 import IdentityScreen1 from '../ui/screen/IdentityScreen1';
 import IdentityScreen2 from '../ui/screen/IdentityScreen2';
+import MapScreen from '../ui/screen/Home/Order/MapScreen';
 
 const AppStack = createNativeStackNavigator<AppScreenParamList>();
 
 const AppNavigation = (): React.ReactElement => {
-  // const handleOffline = useCallback(() => {
-  //   console.log('offline');
-  //   if (
-  //     state.driver?.OnlineStatus === 1 &&
-  //     !state.driver?.idOrder &&
-  //     state.driver?.Status === 'Free'
-  //   ) {
-  //     axiosInstance()
-  //       .then(axios => {
-  //         axios
-  //           .put('/shipper/status', {
-  //             online: false,
-  //           })
-  //           .then(res => {
-  //             if (res.data.status === 'success') {
-  //               console.log('offline success');
-  //               BackgroundTimer.stop();
-  //             }
-  //           })
-  //           .catch(err => {
-  //             console.log(err);
-  //           });
-  //       })
-  //       .catch(err => {
-  //         console.log(err);
-  //       });
-  //   }
-  // }, [state.driver]);
-  // useEffect(() => {
-  //   const onDestroySubscription = eventEmitter.addListener('onDestroy', () => {
-  //     console.log('onDestroy');
-  //     BackgroundTimer.setInterval(() => {
-  //       handleOffline();
-  //     }, 2000);
-  //   });
-  //   return () => {
-  //     onDestroySubscription.remove();
-  //   };
-  // }, [handleOffline, state.driver]);
   return (
     <NavigationContainer>
       <AppStack.Navigator>
@@ -144,6 +106,14 @@ const AppNavigation = (): React.ReactElement => {
             headerTitle: 'Đến điểm giao hàng',
             headerTitleAlign: 'center',
             animation: 'fade_from_bottom',
+          }}
+        />
+        <AppStack.Screen
+          name="mapScreen"
+          component={MapScreen}
+          options={{
+            animation: 'slide_from_right',
+            headerShown: false,
           }}
         />
       </AppStack.Navigator>

@@ -48,12 +48,19 @@ export async function Route(
                     });
                     res.on("end", () => {
                         let resJson = JSON.parse(data);
-                        resolve({
-                            distance:
-                                resJson.routes[0].sections[0].summary.length,
-                            duration:
-                                resJson.routes[0].sections[0].summary.duration,
-                        });
+                        try {
+                            resolve({
+                                distance:
+                                    resJson.routes[0].sections[0].summary
+                                        .length,
+                                duration:
+                                    resJson.routes[0].sections[0].summary
+                                        .duration,
+                            });
+                        } catch (error) {
+                            Log.Error(new Date(), error, "Route");
+                            reject(error);
+                        }
                     });
                 }
             )

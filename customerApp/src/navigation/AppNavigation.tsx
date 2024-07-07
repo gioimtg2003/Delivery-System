@@ -13,7 +13,6 @@ import HomeTabs from './HomeTab';
 import OrderTransportScreen from '../ui/screen/home/OrderTransportScreen';
 import OrderInfoScreen from '../ui/screen/home/OrderInfoScreen';
 import OrderTrackingScreen from '../ui/screen/home/OrderTrackingScreen';
-import TestScreen from '../ui/screen/TestScreen';
 
 const Stack = createNativeStackNavigator<IPramListScreen>();
 

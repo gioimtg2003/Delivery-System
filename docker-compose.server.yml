@@ -1,0 +1,28 @@
+version: "3.4"
+services:
+    server:
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        networks:
+            - shippy-network
+        restart: always
+        environment:
+            - NODE_ENV="production"
+
+    nginx-backend:
+        build:
+            context: .
+            dockerfile: Dockerfile.nginx-server
+        depends_on:
+            - server
+        networks:
+            - shippy-network
+        ports:
+            - "80:80"
+            - "443:443"
+        command: nginx -g "daemon off;"
+
+networks:
+    shippy-network:
+        driver: bridge

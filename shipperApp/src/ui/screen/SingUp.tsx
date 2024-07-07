@@ -17,7 +17,7 @@ import colors from '../../lib/constant/color';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Axios, axiosInstance} from '../../lib/utils/axios';
+import {Axios} from '../../lib/utils/axios';
 import {NavigationProp} from '@react-navigation/native';
 import ListTransport from '../component/ListTransport';
 import {ITransport} from '../../types/transport';
@@ -56,7 +56,7 @@ const SignUpScreen = ({
   useEffect(() => {
     (async () => {
       try {
-        const res = await (await axiosInstance()).get('/transport-type');
+        const res = await new Axios().getInstance(false).get('/transport-type');
         setTransports(res.data.data);
       } catch (err) {
         console.log(err);
@@ -102,12 +102,26 @@ const SignUpScreen = ({
       })
       .then(res => {
         console.log(res.data.data);
-        navigation.reset({
-          index: 0,
-          routes: [
-            {name: 'identity', params: {idShipper: res.data.data.data.id}},
+        Alert.alert(
+          'Đăng ký thành công',
+          'Bạn đã đăng ký thành công, hãy tải lên thông tin cá nhân để chúng tôi xác thực thông tin của bạn',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'identity',
+                      params: {idShipper: res.data.data.data.id},
+                    },
+                  ],
+                });
+              },
+            },
           ],
-        });
+        );
       })
       .catch(err => {
         Alert.alert('Đăng ký không thành công', err.response.data.message, [

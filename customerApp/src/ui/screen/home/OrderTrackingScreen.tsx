@@ -20,11 +20,12 @@ const iconMarker = require('../../../../assets/images/logo-maker.png');
 const iconPickup = require('../../../../assets/images/pickup.png');
 const iconLocation = require('../../../../assets/images/icon-location.png');
 const iconMoney = require('../../../../assets/images/money-icon.png');
-import Mapbox, {MarkerView} from '@rnmapbox/maps';
+import Mapbox, {PointAnnotation} from '@rnmapbox/maps';
 import {useCustomer} from '../../../lib/context/context';
 import Loading from '../../components/Loading';
 import Toast from 'react-native-toast-message';
 import ReactNativeModal from 'react-native-modal';
+
 Mapbox.setAccessToken(
   'sk.eyJ1IjoiZ2lvaW10ZzIwMDMiLCJhIjoiY2x4eW82YjdvMDJtbzJrcjJ2d2dwcWozNCJ9.bQ72__6wdbbyu4j41_2BVQ',
 );
@@ -38,11 +39,46 @@ const OrderTrackingScreen = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [order, setOrder] = useState<IOrder | null>(null);
   const [isVisibleModal, setIsVisibleModal] = useState<boolean>(false);
-  const [coordinates, setCoordinates] = useState<number[]>([
-    10.8260355, 106.7787453,
+  const [coordinates, setCoordinates] = useState<number[] | null>(null);
+  const {ReLoadHistoryOrder, socket} = useCustomer();
+  const [coordinatesDriver, setCoordinatesDriver] = useState<number[] | null>(
+    null,
+  );
+  const [transportDriver, setTransportDriver] = useState<any>(null);
+  const [coordinatesReceiver, setCoordinatesReceiver] = useState<number[]>([
+    106.7787453, 10.8260355,
   ]);
-  const {ReLoadHistoryOrder} = useCustomer();
+  const [showMarker, setShowMarker] = useState<boolean>(false);
   useEffect(() => {
+    const handleTrackingOrder = (data: any) => {
+      if (data.orderId === order?.id) {
+        if (data.transport === '5') {
+          setTransportDriver(
+            require('../../../../assets/images/marker/bike.png'),
+          );
+        } else if (data.transport === '6') {
+          setTransportDriver(
+            require('../../../../assets/images/marker/van.png'),
+          );
+        } else {
+          setTransportDriver(
+            require('../../../../assets/images/marker/truck.png'),
+          );
+        }
+        setCoordinatesDriver([data.lng, data.lat]);
+      }
+    };
+
+    socket.on('TrackingOrder', handleTrackingOrder);
+
+    return () => {
+      socket.off('TrackingOrder', handleTrackingOrder);
+    };
+  }, [socket, order?.id]);
+  useEffect(() => {
+    setTimeout(() => {
+      setShowMarker(true);
+    }, 2000);
     (async () => {
       try {
         let data = await (
@@ -53,11 +89,25 @@ const OrderTrackingScreen = ({
           Number(data.data.data.SenderCoordinates?.split(',')[1]),
           Number(data.data.data.SenderCoordinates?.split(',')[0]),
         ]);
+        setCoordinatesReceiver([
+          Number(data.data.data.ReceiverCoordinates?.split(',')[1]),
+          Number(data.data.data.ReceiverCoordinates?.split(',')[0]),
+        ]);
+        console.log(data.data.data);
+        if (
+          data.data.data.CurrentStatus !== 'Cancel' ||
+          data.data.data.CurrentStatus !== 'Success'
+        ) {
+          socket.emit('JoinRoom', {room: route.params.idOrder});
+          return () => {
+            socket.emit('LeaveRoom', {room: route.params.idOrder});
+          };
+        }
       } catch (err: any) {
         console.log(err.response.data);
       }
     })();
-  }, [route.params.idOrder]);
+  }, [route.params.idOrder, socket]);
   const handleStatus = useCallback(
     async (status: 'cancel' | 'picked_up') => {
       try {
@@ -92,18 +142,46 @@ const OrderTrackingScreen = ({
   );
 
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
+  console.log(coordinatesDriver);
   return (
     <SafeAreaView style={styles.safe}>
       <Mapbox.MapView
+        localizeLabels={{locale: 'vi'}}
         style={styles.map}
         zoomEnabled={true}
-        styleURL={Mapbox.StyleURL.Outdoors}
+        styleURL={'mapbox://styles/gioimtg2003/cly3bplv3007k01qp87hradf3'}
         logoEnabled={false}>
-        <Mapbox.Camera zoomLevel={16} centerCoordinate={coordinates} />
-        <MarkerView coordinate={coordinates}>
-          <Image source={iconMarker} width={32} height={34} />
-        </MarkerView>
+        {coordinates && showMarker && (
+          <Mapbox.Camera
+            centerCoordinate={[
+              (coordinates[0] + coordinatesReceiver[0]) / 2,
+              (coordinates[1] + coordinatesReceiver[1]) / 2,
+            ]}
+            padding={{
+              paddingTop: 50,
+              paddingLeft: 50,
+              paddingRight: 50,
+              paddingBottom: 50,
+            }}
+            zoomLevel={10}
+            animationDuration={2000}
+          />
+        )}
+        {coordinates && showMarker && (
+          <PointAnnotation coordinate={coordinates} id="1">
+            <Image source={iconMarker} width={32} height={34} />
+          </PointAnnotation>
+        )}
+        {showMarker && coordinatesDriver && (
+          <PointAnnotation coordinate={coordinatesDriver} id="3">
+            <Image source={transportDriver} width={24} height={24} />
+          </PointAnnotation>
+        )}
+        {showMarker && coordinatesReceiver && (
+          <PointAnnotation coordinate={coordinatesReceiver} id="2">
+            <Image source={iconLocation} width={32} height={34} />
+          </PointAnnotation>
+        )}
       </Mapbox.MapView>
       <TouchableOpacity
         style={{
@@ -197,7 +275,8 @@ const OrderTrackingScreen = ({
               {ConvertPrice(order?.ShippingFee ?? 0)}
             </Text>
           </View>
-          {order?.CurrentStatus === 'pending' && (
+          {(order?.CurrentStatus === 'pending' ||
+            order?.CurrentStatus === 'pending_pickup') && (
             <View style={styles._5}>
               <TouchableOpacity
                 activeOpacity={0.5}
@@ -219,53 +298,6 @@ const OrderTrackingScreen = ({
                 <Text
                   style={{color: '#DC5F00', fontSize: 16, fontWeight: '600'}}>
                   Hủy đơn hàng
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          {order?.CurrentStatus === 'pending_pickup' && (
-            <View style={styles._7_}>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={{
-                  width: '48%',
-                  height: 45,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 1,
-                  elevation: 2,
-                  backgroundColor: '#EEEEEE',
-                  borderWidth: 1,
-                  borderColor: '#F5F7F8',
-                }}
-                onPress={() => {
-                  setIsVisibleModal(true);
-                }}>
-                <Text
-                  style={{color: '#DC5F00', fontSize: 16, fontWeight: '600'}}>
-                  Hủy đơn hàng
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.5}
-                style={{
-                  width: '48%',
-                  height: 45,
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  borderRadius: 1,
-                  elevation: 2,
-                  backgroundColor: colors.placeholder,
-                  borderWidth: 1,
-                  borderColor: colors.placeholder,
-                }}
-                onPress={() => {
-                  handleStatus('picked_up');
-                }}>
-                <Text style={{color: '#fff', fontSize: 16, fontWeight: '600'}}>
-                  Đã đưa hàng
                 </Text>
               </TouchableOpacity>
             </View>

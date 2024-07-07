@@ -5,6 +5,7 @@ import { MONGO_URI, DATABASE_NAME } from "./src/Configs/db";
 import { App } from "./src/app";
 import express from "express";
 import { createServer, Server as IServer } from "http";
+import { initSocket } from "./src/socket";
 class Server {
     private mongo: MongoService;
     private port: string | number;
@@ -18,6 +19,7 @@ class Server {
         this.app = new App(express());
         this.app.initApp();
         this.server = createServer(this.app.getApp());
+        initSocket(this.server);
     }
 
     async start() {

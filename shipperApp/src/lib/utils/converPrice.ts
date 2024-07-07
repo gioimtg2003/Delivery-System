@@ -1,4 +1,4 @@
-export const ConvertPrice = (number: number): string => {
+export const ConvertPrice = (number: number = 0): string => {
   return number
     .toLocaleString('it-IT', {style: 'currency', currency: 'VND'})
     .replace('VND', '₫ ');

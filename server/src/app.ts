@@ -32,6 +32,7 @@ export class App {
             console.error("Error connecting to database", error);
             process.exit(1);
         }
+        this.app.set("trust proxy", true);
         this.app.use(cors(this.corsOptions));
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: true }));

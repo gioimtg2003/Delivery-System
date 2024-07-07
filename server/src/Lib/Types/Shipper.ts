@@ -29,7 +29,7 @@ export interface IShipper {
     idOrder?: string;
     Phone: string;
     Email: string;
-    Verify?: boolean;
+    Verify: 0 | 1;
     Created?: Date;
     lat?: number;
     lng?: number;

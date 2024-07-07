@@ -5,7 +5,7 @@ import {setToken} from './token';
 export class Axios {
   getInstance(file?: boolean): AxiosInstance {
     return axios.create({
-      baseURL: 'http://10.0.2.2:3000/api',
+      baseURL: 'https://apishippy.nguyenconggioi.me/api',
       timeout: 10000,
       headers: {
         'Content-Type': file ? 'multipart/form-data' : 'application/json',
@@ -26,7 +26,7 @@ export const axiosInstance = async (file?: boolean): Promise<AxiosInstance> => {
         }`;
       }
     } catch (error) {
-      console.error(error);
+      throw new Error('Failed to get token');
     }
 
     return {...config};
@@ -49,8 +49,6 @@ export const grantAccessToken = async () => {
 
     return data.data.data.access_token;
   } catch (error) {
-    // Logout
-    console.log(error);
     throw new Error('Refresh token failed');
   }
 };

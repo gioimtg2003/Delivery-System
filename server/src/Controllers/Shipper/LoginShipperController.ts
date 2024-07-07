@@ -34,20 +34,20 @@ export class LoginShipperController extends BaseController {
                         FormatApi(
                             HttpCode.INTERNAL_ERROR,
                             "error",
-                            "Error while login",
+                            "Lỗi hệ thống",
                             null,
                             new Date()
                         )
                     );
             } else if (data?.error) {
                 return res
-                    .status(HttpCode.BAD_REQUEST)
+                    .status(HttpCode.REQUEST_REJECT)
                     .json(
                         FormatApi(
-                            HttpCode.BAD_REQUEST,
+                            HttpCode.REQUEST_REJECT,
                             "failed",
                             data.message,
-                            null,
+                            data.data,
                             new Date()
                         )
                     );

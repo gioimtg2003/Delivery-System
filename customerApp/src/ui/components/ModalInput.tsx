@@ -22,6 +22,7 @@ interface IAddress {
   address: {
     label: string;
     city: string;
+    county: string;
   };
   id: string;
 }
@@ -54,6 +55,7 @@ function ModalInput(props: Readonly<ModalInputProps>) {
     try {
       let hashPermission = await hashPermissionLocation();
       if (hashPermission) {
+        ToastAndroid.show('Hiện tính năng này đang bảo trì', ToastAndroid.LONG);
         // let location = await getLocation();
         // navigation.navigate('order-info', {
         //   lng: location.longitude,
@@ -142,12 +144,23 @@ function ModalInput(props: Readonly<ModalInputProps>) {
               style={styles.result}
               activeOpacity={0.5}
               onPress={() => {
-                setLoading(true);
-                props.setAddress(item.address.label);
-                setTimeout(() => {
-                  setLoading(false);
-                  props.onClose();
-                }, 1000);
+                console.log(item.address.county);
+                if (
+                  item.address.county !== 'Hồ Chí Minh' &&
+                  item.address.county !== 'Ho Chi Minh'
+                ) {
+                  ToastAndroid.show(
+                    'Chỉ hỗ trợ giao hàng trong khu vực Hồ Chí Minh',
+                    ToastAndroid.LONG,
+                  );
+                } else {
+                  setLoading(true);
+                  props.setAddress(item.address.label);
+                  setTimeout(() => {
+                    setLoading(false);
+                    props.onClose();
+                  }, 1000);
+                }
               }}>
               <SimpleLineIcons
                 name="location-pin"

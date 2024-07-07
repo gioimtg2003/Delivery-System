@@ -6,6 +6,7 @@ import { BaseSimpleStorage } from "../../Services/AWS/BaseSimpleStorage";
 
 export class GetUrlS3Controller extends BaseController {
     Controller(req: Request, res: Response): Response | void {
+        console.log(req.query);
         const { url } = req.query;
         if (!url) {
             return res

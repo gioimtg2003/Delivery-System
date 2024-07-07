@@ -1,48 +1,41 @@
 "use client";
+import React, { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
 
-import { Form, Upload, UploadFile } from "antd";
-import { useState } from "react";
+import { Map } from "mapbox-gl/dist/mapbox-gl";
 
-export default function AdminPage(): React.ReactElement {
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
+import "mapbox-gl/dist/mapbox-gl.css";
+
+const AdminPage = () => {
+    const mapRef = useRef<Map>();
+
+    useEffect(() => {
+        mapboxgl.accessToken = String(
+            process.env.NEXT_PUBLIC_ACCESSTOKEN_MAPBOX
+        );
+
+        mapRef.current = new mapboxgl.Map({
+            container: "map-container",
+            center: [106.67065066578655, 10.800786882304118],
+            zoom: 12,
+            style: "mapbox://styles/gioimtg2003/cly3bplv3007k01qp87hradf3",
+            language: "vi",
+            locale: {
+                "LogoControl.Title": "Trang chủ",
+                "Map.Title": "Bản đồ",
+                "NavigationControl.ZoomIn": "Phóng to",
+                "NavigationControl.ZoomOut": "Thu nhỏ",
+            },
+        });
+    });
 
     return (
-        <div>
-            <h1>Admin Dashboard</h1>
-            <p>Here you can manage your website.</p>
-            <Form onFinish={console.log} name="file">
-                <Form.Item
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please upload a file",
-                        },
-                    ]}
-                >
-                    <Upload
-                        accept="image/*"
-                        fileList={fileList}
-                        listType="picture-card"
-                        onChange={(e) => {
-                            console.log(e.fileList);
-                            setFileList(e.fileList);
-                        }}
-                        progress={{
-                            strokeColor: {
-                                "0%": "#108ee9",
-                                "100%": "#87d068",
-                            },
-                            strokeWidth: 5,
-                            format: (percent) => `${percent}%`,
-                        }}
-                    >
-                        upload
-                    </Upload>
-                </Form.Item>
-                <Form.Item>
-                    <button type="submit">Submit</button>
-                </Form.Item>
-            </Form>
-        </div>
+        <div
+            style={{ height: "100%" }}
+            id="map-container"
+            className="map-container"
+        />
     );
-}
+};
+
+export default AdminPage;

@@ -5,7 +5,7 @@ import {setToken} from './token';
 export class Axios {
   getInstance(file?: boolean): AxiosInstance {
     return axios.create({
-      baseURL: 'http://192.168.1.75:3000/api',
+      baseURL: 'https://apishippy.nguyenconggioi.me/api',
       timeout: 20000,
       headers: {
         'Content-Type': file ? 'multipart/form-data' : 'application/json',
@@ -26,7 +26,6 @@ export const axiosInstance = async (file?: boolean): Promise<AxiosInstance> => {
         }`;
       }
     } catch (error) {
-      console.error(error);
       throw new Error('Error in request interceptor');
     }
 
@@ -49,9 +48,8 @@ export const grantAccessToken = async () => {
     });
 
     return data.data.data.access_token;
-  } catch (error) {
+  } catch (error: any) {
     // Logout
-    console.log(error);
-    throw new Error('Refresh token failed');
+    throw new Error(error.response.data.message);
   }
 };

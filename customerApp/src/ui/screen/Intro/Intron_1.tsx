@@ -89,17 +89,7 @@ const Intro_1Screen = ({
               color: 'white',
               fontSize: 16,
             }}>
-            Đăng nhập
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btnSignUp}>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              color: '#5AB2FF',
-              fontSize: 16,
-            }}>
-            Đăng ký tài khoản
+            Tiếp theo
           </Text>
         </TouchableOpacity>
       </View>
@@ -136,7 +126,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   footer: {
-    flex: 3,
+    flex: 2,
     width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -152,7 +142,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 6,
-    marginBottom: 20,
+    marginBottom: 30,
     elevation: 7,
   },
   btnSignUp: {

@@ -37,13 +37,15 @@ export class LoginCustomer extends BaseLogin {
                     data: "need_verify",
                 });
             } else {
-                this.handleToken(customer[0]).then((tokenData) => {
-                    return callback(null, {
-                        error: false,
-                        message: "Login success",
-                        data: tokenData,
-                    });
-                });
+                this.handleToken({ ...customer[0], Role: "customer" }).then(
+                    (tokenData) => {
+                        return callback(null, {
+                            error: false,
+                            message: "Login success",
+                            data: tokenData,
+                        });
+                    }
+                );
             }
         } catch (error) {
             console.error(error);

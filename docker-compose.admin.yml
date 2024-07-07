@@ -1,0 +1,25 @@
+version: "3.4"
+services:
+    client-admin:
+        build:
+            context: ./client-web
+            dockerfile: Dockerfile
+        networks:
+            - shippy-network
+        restart: always
+
+    nginx-client:
+        build:
+            context: .
+            dockerfile: Dockerfile.nginx-admin
+        depends_on:
+            - client-admin
+        networks:
+            - shippy-network
+        ports:
+            - "8080:80"
+        command: nginx -g "daemon off;"
+
+networks:
+    shippy-network:
+        driver: bridge

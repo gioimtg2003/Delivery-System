@@ -18,9 +18,11 @@ import {Axios, axiosInstance} from '../../../lib/utils/axios';
 import {useDriver} from '../../../lib/context/Driver/Context';
 import UploadS3 from '../../../lib/utils/UpLoadS3';
 import {useNavigation} from '@react-navigation/native';
+import {useAuth} from '../../../lib/context/auth.context';
 
 const AddWalletScreen = (): React.ReactElement => {
-  const {state, reloadHistoryWallet} = useDriver();
+  const {reloadHistoryWallet} = useDriver();
+  const {driver} = useAuth();
   const [focus, setFocus] = useState(false);
   const [amount, setAmount] = useState('');
   const [isVisibleModalUpload, setIsVisibleModalUpload] =
@@ -44,9 +46,7 @@ const AddWalletScreen = (): React.ReactElement => {
       try {
         let result = await launchImageLibrary({
           mediaType: 'photo',
-          quality: 0.5,
-          maxWidth: 500,
-          maxHeight: 500,
+          selectionLimit: 1,
         });
         if (result.didCancel) {
           setIsVisibleModalUpload(false);
@@ -60,7 +60,7 @@ const AddWalletScreen = (): React.ReactElement => {
             fileName,
             typeImg: 'driverwallet',
             contentType: type,
-            id: state.driver?.id,
+            id: driver?.id,
           });
           let upload = await UploadS3(
             uri as string,
@@ -99,7 +99,7 @@ const AddWalletScreen = (): React.ReactElement => {
           console.log('error');
         }
       } catch (error: any) {
-        console.error(error);
+        console.error(error.response.data);
         if (error.response.status === 429) {
           Toast.show({
             type: 'error',
@@ -116,7 +116,7 @@ const AddWalletScreen = (): React.ReactElement => {
         setLoading(false);
       }
     })();
-  }, [state.driver?.id, amount, navigation, reloadHistoryWallet]);
+  }, [driver?.id, amount, reloadHistoryWallet, navigation]);
   return (
     <SafeAreaView style={styles.safeArea}>
       {loading && <Loading />}

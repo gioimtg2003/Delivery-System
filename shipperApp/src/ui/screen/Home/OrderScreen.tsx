@@ -4,12 +4,13 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import colors from '../../../lib/constant/color';
 import Entypo from 'react-native-vector-icons/Entypo';
 import ListOrder from '../../component/ListOrder';
-import {NavigationProp, ParamListBase} from '@react-navigation/native';
+import {NavigationProp} from '@react-navigation/native';
+import {AppScreenParamList} from '../../../types/ScreenParam';
 
 const OrderScreen = ({
   navigation,
 }: {
-  readonly navigation: NavigationProp<ParamListBase>;
+  readonly navigation: NavigationProp<AppScreenParamList>;
 }): React.ReactElement => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   return (

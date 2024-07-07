@@ -26,6 +26,8 @@ function MainScreen({
 }: {
   readonly navigation: NavigationProp<IPramListScreen>;
 }): React.ReactElement {
+  const {ReLoadHistoryOrder} = useCustomer();
+
   const [heightLocation, setHeightLocation] = useState<number>(0);
   const [addressSender, setAddressSender] = useState<string | undefined>(
     undefined,
@@ -44,6 +46,10 @@ function MainScreen({
   };
 
   useEffect(() => {
+    ReLoadHistoryOrder();
+  }, [ReLoadHistoryOrder]);
+
+  useEffect(() => {
     if (addressSender && addressReceiver) {
       navigation.navigate('transport', {
         senderAddress: addressSender,
@@ -51,8 +57,8 @@ function MainScreen({
       });
     }
   }, [addressReceiver, addressSender, navigation]);
+
   const [refreshing, setRefreshing] = useState(false);
-  const {ReLoadHistoryOrder} = useCustomer();
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
@@ -119,9 +125,9 @@ function MainScreen({
                   onPress={toggleModalSender}>
                   <Text
                     style={{
-                      color: 'gray',
+                      color: 'black',
                       fontSize: 14,
-                      fontWeight: 'bold',
+                      fontWeight: '500',
                       marginBottom: 10,
                     }}>
                     {addressSender || 'Địa chỉ gửi hàng'}
@@ -134,9 +140,9 @@ function MainScreen({
                   activeOpacity={0.6}>
                   <Text
                     style={{
-                      color: 'gray',
+                      color: 'black',
                       fontSize: 14,
-                      fontWeight: 'bold',
+                      fontWeight: '500',
                       marginTop: 10,
                     }}>
                     Địa chỉ giao hàng

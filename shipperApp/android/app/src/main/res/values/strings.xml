@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Tài xế Shippy</string>
+     <string name="capacitor_background_geolocation_notification_channel_name">
+        Cập nhật vị trí tài xế
+    </string>
+    <string name="capacitor_background_geolocation_notification_icon">
+        drawable/ic_tracking
+    </string>
 </resources>

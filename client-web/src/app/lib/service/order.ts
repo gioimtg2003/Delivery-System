@@ -1,5 +1,4 @@
 import { CreateOrderType } from "../Types";
-import { Order } from "../context/order/type";
 import { axiosInstance } from "../util/axios";
 
 export const createOrder = (order: CreateOrderType): Promise<string> => {

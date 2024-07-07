@@ -21,39 +21,58 @@ export class LoginShipper extends BaseLogin {
     ): Promise<void> {
         try {
             let [shipper] = await pool.execute<(IShipper & RowDataPacket)[]>(
-                "SELECT id, Email, Phone, Password FROM shippers WHERE Phone = ?",
+                "SELECT id, Email, Phone, Verify, Password FROM shippers WHERE Phone = ?",
                 [data.phone]
             );
             if (shipper.length === 0) {
                 return callback(null, {
                     error: true,
-                    message: "Phone not found",
+                    message: "Số điện thoại không tồn tại",
                     data: null,
                 });
-            } else {
-                if (
-                    this._hashPassword.comparePassword(
-                        data.password,
-                        shipper[0].Password as string
-                    ) === false
-                ) {
+            } else if (
+                this._hashPassword.comparePassword(
+                    data.password,
+                    shipper[0].Password as string
+                ) === false
+            ) {
+                return callback(null, {
+                    error: true,
+                    message: "Mật khẩu không chính xác",
+                    data: null,
+                });
+            } else if (shipper[0].Verify === 0) {
+                let [identity] = await pool.execute<RowDataPacket[]>(
+                    "SELECT idShipper FROM shipperidentity WHERE idShipper = ?",
+                    [shipper[0].id]
+                );
+                if (identity.length === 0) {
                     return callback(null, {
                         error: true,
-                        message: "Password is incorrect",
-                        data: null,
+                        message: "need_upload_identity",
+                        data: shipper[0].id,
                     });
                 } else {
-                    this.handleToken(shipper[0]).then((tokenData) => {
+                    return callback(null, {
+                        error: true,
+                        message: "Bạn chưa được hệ thống xác minh tài khoản",
+                        data: null,
+                    });
+                }
+            } else {
+                this.handleToken({ ...shipper[0], Role: "Shipper" }).then(
+                    (tokenData) => {
                         console.log(tokenData);
                         return callback(null, {
                             error: false,
                             message: "Login success",
                             data: tokenData,
                         });
-                    });
-                }
+                    }
+                );
             }
         } catch (error) {
+            console.error(error);
             Log.Error(new Date(), error, "LoginShipper");
             return callback("Error while login", null);
         }

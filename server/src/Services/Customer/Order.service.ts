@@ -11,7 +11,8 @@ import {
     ConvertIsoToString,
     convertTimeStamp,
 } from "../../Lib/Utils/converTimeStamp";
-import { PoolConnection } from "mysql2/promise";
+import { IShipper } from "../../Lib/Types/Shipper";
+import { getIO } from "../../socket";
 interface IRes {
     err: boolean;
     msg: string;
@@ -145,35 +146,6 @@ export const HistoryOrderService = async (
     }
 };
 
-export const PickedUpOrderService = async (
-    data: {
-        idOrder: string;
-        id: number;
-    },
-    callback: ICallback<boolean>
-): Promise<void> => {
-    try {
-        let time = convertTimeStamp(Date.now());
-        let [update] = await pool.execute<ResultSetHeader>(
-            "update orders set CurrentStatus = ?, TimeCurrentStatus = ? where id = ? and idCustomer = ? and idShipper is not null and CurrentStatus = 'pending_pickup'",
-            [Status.PICKED_UP, time, data.idOrder, data.id]
-        );
-        if (update.affectedRows === 0) {
-            return callback("Bad request", null);
-        } else {
-            await pool.execute(
-                "insert into orderstatus (idOrder, Status, Created) values (?,?,?)",
-                [data.idOrder, Status.PICKED_UP, time]
-            );
-            callback(null, true);
-        }
-    } catch (err) {
-        console.error(err);
-        Log.Error(new Date(), err, "PickedUpOrderService");
-        return callback("Error when update picked up order", null);
-    }
-};
-
 export const GetOrderDetailService = async (
     data: {
         idOrder: string;
@@ -222,7 +194,11 @@ export const UpdateStatusOrderService = async (
                 data.idCustomer,
             ]
         );
-        if (update.affectedRows === 0) {
+        let [driver] = await pool.execute<(IShipper & RowDataPacket)[]>(
+            "select id from shippers where idOrder = ?",
+            [data.idOrder]
+        );
+        if (update.affectedRows === 0 || driver.length === 0) {
             return callback("Bad request", null);
         } else {
             await pool.execute(
@@ -231,9 +207,13 @@ export const UpdateStatusOrderService = async (
             );
             if (data.Status === "cancel") {
                 await pool.execute(
-                    "update shippers set idOrder = null where idOrder = ?",
+                    "update shippers set idOrder = null, Status = 'Free'  where idOrder = ?",
                     [data.idOrder]
                 );
+                console.log(driver[0]?.id);
+                getIO()
+                    .to(`Shipper-${String(driver[0]?.id).toString()}`)
+                    .emit("cancelOrder", { idOrder: data.idOrder });
             }
             return callback(null, true);
         }
