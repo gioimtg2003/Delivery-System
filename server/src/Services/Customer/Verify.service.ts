@@ -5,6 +5,7 @@ import { ICustomer } from "../../Lib/Types/Customer";
 import { Log } from "../../Lib/Utils/Log";
 import { randomCode } from "../../Lib/Utils/randomCode";
 import { convertTimeStamp } from "../../Lib/Utils/converTimeStamp";
+import { CustomerEmailRegister } from "../Email/CustomerEmailRegister";
 
 interface IRes {
     err: boolean;
@@ -54,13 +55,23 @@ async function VerifyOTP(
 async function ResendOtp(Phone: string, callback: ICallback<boolean>) {
     try {
         let code = randomCode();
+        let [email] = await pool.execute<(ICustomer & RowDataPacket)[]>(
+            "select Email from customers where Phone = ?",
+            [Phone]
+        );
         let [customer] = await pool.execute<ResultSetHeader>(
             "update customers set OTP = ?, ExpOTP = ? where Phone = ?",
             [code, convertTimeStamp(Date.now() + 60000 * 15), Phone]
         );
         console.log(customer);
         console.log(code);
-        if (customer.affectedRows > 0) {
+        if (customer.affectedRows > 0 && email.length > 0) {
+            let _email = new CustomerEmailRegister(
+                String(email[0].Email),
+                Phone,
+                Number(code)
+            );
+            _email.sendEmail();
             Log.Info(
                 new Date(),
                 "Success",

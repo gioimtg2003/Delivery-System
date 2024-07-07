@@ -112,8 +112,24 @@ const OrderDetailsScreen = ({
               <Entypo name="location-pin" size={24} color="#5BBCFF" />
             </View>
             <View style={styles.containerAddressInfo}>
-              <Text>{order?.SenderAddress}</Text>
-              <Text>{order?.ReceiverAddress}</Text>
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: '400',
+                  color: 'black',
+                  marginBottom: 10,
+                }}>
+                {order?.SenderAddress}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: '400',
+                  color: 'black',
+                  marginBottom: 10,
+                }}>
+                {order?.ReceiverAddress}
+              </Text>
             </View>
           </View>
           {order?.Note && (
@@ -132,11 +148,24 @@ const OrderDetailsScreen = ({
                   style={{marginBottom: 10}}
                 />
                 <Text
-                  style={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}}>
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginLeft: 10,
+                    color: 'black',
+                  }}>
                   Ghi chú
                 </Text>
               </View>
-              <Text>{order.Note}</Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '500',
+                  marginLeft: 10,
+                  color: 'black',
+                }}>
+                {order.Note}
+              </Text>
             </View>
           )}
 
@@ -156,11 +185,16 @@ const OrderDetailsScreen = ({
                   style={{marginBottom: 10}}
                 />
                 <Text
-                  style={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}}>
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginLeft: 10,
+                    color: 'black',
+                  }}>
                   Tiền thu hộ
                 </Text>
               </View>
-              <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+              <Text style={{fontSize: 18, fontWeight: 'bold', color: 'black'}}>
                 {FormatCurrency(order?.COD as number)}
               </Text>
             </View>
@@ -182,11 +216,16 @@ const OrderDetailsScreen = ({
                   style={{marginBottom: 10}}
                 />
                 <Text
-                  style={{fontSize: 18, fontWeight: 'bold', marginLeft: 10}}>
+                  style={{
+                    fontSize: 18,
+                    fontWeight: 'bold',
+                    marginLeft: 10,
+                    color: 'black',
+                  }}>
                   Tiền mặt
                 </Text>
               </View>
-              <Text style={{fontSize: 18, fontWeight: 'bold'}}>
+              <Text style={{fontSize: 18, fontWeight: 'bold', color: 'black'}}>
                 {FormatCurrency(order?.ShippingFee as number)}
               </Text>
             </View>
@@ -238,6 +277,7 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '90%',
     flexWrap: 'wrap',
+    color: 'black',
   },
   containerAddress: {
     width: '95%',

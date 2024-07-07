@@ -2,6 +2,7 @@ import {Socket, io} from 'socket.io-client';
 
 export interface ServerToClientEvents {
   invalidToken: () => void;
+  cancelOrder: (data: {idOrder: string}) => void;
 }
 
 interface ClientToServerEvents {

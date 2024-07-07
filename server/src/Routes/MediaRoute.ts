@@ -11,6 +11,7 @@ const limiterMedia: RateLimitRequestHandler = rateLimit({
         status: "failed",
         message: "Yêu cầu quá nhanh, vui lòng thử lại sau 15 giây",
     },
+    validate: { trustProxy: false },
 });
 export class MediaRoute extends BaseRoute {
     constructor() {

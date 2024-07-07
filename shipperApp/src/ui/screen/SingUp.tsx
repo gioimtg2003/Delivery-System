@@ -17,7 +17,7 @@ import colors from '../../lib/constant/color';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Axios, axiosInstance} from '../../lib/utils/axios';
+import {Axios} from '../../lib/utils/axios';
 import {NavigationProp} from '@react-navigation/native';
 import ListTransport from '../component/ListTransport';
 import {ITransport} from '../../types/transport';

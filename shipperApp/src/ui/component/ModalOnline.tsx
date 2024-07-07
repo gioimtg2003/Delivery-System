@@ -38,6 +38,7 @@ const ModalOnline = ({
                 <Text
                   style={{
                     fontSize: 15,
+                    color: 'black',
                   }}>
                   Thay đổi trạng thái làm việc
                 </Text>

@@ -44,9 +44,6 @@ const IdentityScreen1 = ({
         const result = await launchCamera({
           mediaType: 'photo',
           cameraType: 'back',
-          maxWidth: 500,
-          maxHeight: 500,
-          quality: 0.5,
         });
         if (!result.didCancel) {
           const {data} = await new Axios()

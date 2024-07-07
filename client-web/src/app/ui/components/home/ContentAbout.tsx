@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import TextGenerateEffect from "../TextGenerateEffect";
 const ContentAbout = (): JSX.Element => {
     return (

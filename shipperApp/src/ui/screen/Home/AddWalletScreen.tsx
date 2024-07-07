@@ -21,7 +21,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../../lib/context/auth.context';
 
 const AddWalletScreen = (): React.ReactElement => {
-  const {state, reloadHistoryWallet} = useDriver();
+  const {reloadHistoryWallet} = useDriver();
   const {driver} = useAuth();
   const [focus, setFocus] = useState(false);
   const [amount, setAmount] = useState('');
@@ -46,9 +46,7 @@ const AddWalletScreen = (): React.ReactElement => {
       try {
         let result = await launchImageLibrary({
           mediaType: 'photo',
-          quality: 0.5,
-          maxWidth: 500,
-          maxHeight: 500,
+          selectionLimit: 1,
         });
         if (result.didCancel) {
           setIsVisibleModalUpload(false);
@@ -118,7 +116,7 @@ const AddWalletScreen = (): React.ReactElement => {
         setLoading(false);
       }
     })();
-  }, [state.driver?.id, amount, navigation, reloadHistoryWallet]);
+  }, [driver?.id, amount, reloadHistoryWallet, navigation]);
   return (
     <SafeAreaView style={styles.safeArea}>
       {loading && <Loading />}

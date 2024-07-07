@@ -17,5 +17,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --production
 COPY --from=builder /app/build ./
+COPY public ./public
 COPY .env ./
 CMD [ "node" , "server.js"]

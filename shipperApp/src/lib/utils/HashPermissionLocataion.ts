@@ -22,20 +22,9 @@ const HashPermissionLocation = async (): Promise<boolean> => {
     },
   );
 
-  let granted3 = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
-    {
-      title: 'Quyền truy cập vị trí',
-      message: 'Shippy App muốn truy cập vị trí của bạn',
-      buttonNeutral: 'Hỏi lại sau',
-      buttonNegative: 'Không',
-      buttonPositive: 'Đồng ý',
-    },
-  );
   if (
     granted === PermissionsAndroid.RESULTS.GRANTED &&
-    granted2 === PermissionsAndroid.RESULTS.GRANTED &&
-    granted3 === PermissionsAndroid.RESULTS.GRANTED
+    granted2 === PermissionsAndroid.RESULTS.GRANTED
   ) {
     return true;
   } else {

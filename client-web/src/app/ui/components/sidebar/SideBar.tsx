@@ -13,7 +13,7 @@ export const SideBar = (): JSX.Element => {
             <div className="w-full flex flex-row justify-center items-center mb-16">
                 <div className="rounded-full p-2 border-2 border-white shadow-lg shadow-black/15 bg-white">
                     <Image
-                        src="/images/logo-2.png"
+                        src="/images/Logo-2.png"
                         alt="logo"
                         width={80}
                         height={80}
@@ -26,7 +26,7 @@ export const SideBar = (): JSX.Element => {
                     <Link
                         key={index}
                         href={item.url}
-                        className="w-full py-2 flex flex-row justify-center items-center mb-8"
+                        className="w-full py-2 flex flex-row justify-center items-center mb-8 hover:bg-blue-200/25 hover:-translate-y-2 hover:duration-150 rounded-lg"
                     >
                         <item.icon size={30} className="w-1/4 text-gray-200" />
                         <div className="w-3/4 text-md text-gray-800 font-medium">
@@ -34,7 +34,7 @@ export const SideBar = (): JSX.Element => {
                         </div>
                     </Link>
                 ))}
-                <div className="w-full py-2 flex flex-row justify-center items-center mb-4 cursor-pointer">
+                <div className="w-full py-2 flex flex-row justify-center items-center mb-4 cursor-pointer hover:bg-blue-200/25 hover:-translate-y-2 hover:duration-150 rounded-lg">
                     <RiLogoutBoxRLine
                         size={30}
                         className="w-1/4 text-gray-200"

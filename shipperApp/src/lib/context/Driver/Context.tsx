@@ -16,6 +16,7 @@ import {useAuth} from '../auth.context';
 import {initSocket} from '../../utils/socket';
 import GetCurrentLocation from '../../utils/GetCurrentLocation';
 import HashPermissionLocation from '../../utils/HashPermissionLocataion';
+import _BackgroundTimer from 'react-native-background-timer';
 
 const initState: DriverState = {
   showWarning: false,
@@ -26,7 +27,7 @@ const useDriverSource = () => {
     DriverReducer,
     initState,
   );
-  const {isLoggedIn, driver, jwt} = useAuth();
+  const {isLoggedIn, driver, jwt, reload} = useAuth();
   const socket = useMemo(() => initSocket(), []);
   useEffect(() => {
     (async () => {
@@ -78,31 +79,18 @@ const useDriverSource = () => {
   }, [isLoggedIn, state.reloadHistoryWallet]);
 
   useEffect(() => {
-    // if (isLoggedIn === true) {
-    //   let intervalId = _BackgroundTimer.setInterval(async () => {
-    //     try {
-    //       const hashPermission = await HashPermissionLocation();
-    //       if (hashPermission === true) {
-    //         // const {latitude, longitude} = await GetCurrentLocation();
-    //         // let data = {
-    //         //   transport: String(driver?.idTransport),
-    //         //   orderId: String(driver?.idOrder),
-    //         //   lat: latitude,
-    //         //   lng: longitude,
-    //         // };
-    //         // socket.emit('TrackingOrder', data);
-    //       }
-    //     } catch (err: any) {
-    //       console.error(err);
-    //     }
-    //   }, 10000);
-    //   return () => {
-    //     _BackgroundTimer.clearInterval(intervalId);
-    //   };
-    // } else {
-    //   return;
-    // }
-  }, [socket, isLoggedIn, driver?.idTransport, driver?.idOrder]);
+    if (isLoggedIn === true) {
+      let intervalId = _BackgroundTimer.setInterval(() => {
+        console.log('Ping');
+        socket.emit('ping');
+      }, 7000);
+      return () => {
+        _BackgroundTimer.clearInterval(intervalId);
+      };
+    } else {
+      return;
+    }
+  }, [socket, isLoggedIn]);
 
   useEffect(() => {
     if (isLoggedIn === true && driver?.OnlineStatus === 1) {
@@ -131,6 +119,24 @@ const useDriverSource = () => {
   }, [state.reloadOrderList, isLoggedIn, driver]);
 
   useEffect(() => {
+    socket.on('cancelOrder', data => {
+      console.log(data);
+      console.log(driver?.idOrder);
+      if (data.idOrder === driver?.idOrder) {
+        Toast.show({
+          type: 'error',
+          text1: 'Đơn hàng đã bị hủy',
+          text1Style: {fontSize: 15, fontWeight: 'normal'},
+        });
+        dispatch({
+          type: DriverActionType.SET_ORDER_PICKUP,
+          payload: {
+            orderPickup: undefined,
+          },
+        });
+        reload();
+      }
+    });
     if (
       isLoggedIn === true &&
       driver?.OnlineStatus === 1 &&
@@ -165,6 +171,7 @@ const useDriverSource = () => {
     driver?.idOrder,
     isLoggedIn,
     socket,
+    reload,
   ]);
   const reloadHistoryWallet = useCallback(() => {
     dispatch({

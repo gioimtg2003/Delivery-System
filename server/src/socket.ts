@@ -1,7 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { VerifyToken } from "./Middlewares/VerifyToken";
 
-let io: Server;
 interface ClientToServer {
     JoinRoom: (data: { room: string }) => void;
     LeaveRoom: (data: { room: string }) => void;
@@ -16,8 +15,15 @@ interface ClientToServer {
 interface ServerToClient {
     invalidToken: () => void;
     pickedUpOrder: (data: { data: string }) => void;
+    cancelOrder: (data: { idOrder: string }) => void;
+    TrackingOrder: (data: {
+        orderId: string;
+        lat: number;
+        lng: number;
+    }) => void;
     // Add the invalidToken event to the interface
 }
+let io: Server<ClientToServer, ServerToClient>;
 const initSocket = (server: any) => {
     io = new Server(server, {
         cors: {

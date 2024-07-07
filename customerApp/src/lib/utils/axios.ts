@@ -5,7 +5,7 @@ import {setToken} from './token';
 export class Axios {
   getInstance(file?: boolean): AxiosInstance {
     return axios.create({
-      baseURL: 'http://192.168.1.76:3000/api',
+      baseURL: 'https://apishippy.nguyenconggioi.me/api',
       timeout: 20000,
       headers: {
         'Content-Type': file ? 'multipart/form-data' : 'application/json',

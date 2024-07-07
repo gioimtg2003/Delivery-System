@@ -1,18 +1,9 @@
 import React from 'react';
 import {NavigationProp, ParamListBase} from '@react-navigation/native';
-import {
-  Image,
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import colors from '../../../lib/constant/color';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import PushNotification from 'react-native-push-notification';
 const image = require('../../../../assets/images/background_intro1.png');
 
 const Intro_1Screen = ({
@@ -98,59 +89,7 @@ const Intro_1Screen = ({
               color: 'white',
               fontSize: 16,
             }}>
-            Đăng nhập
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.btnSignUp}
-          onPress={async () => {
-            if (Platform.OS === 'android') {
-              if (Number(Platform.Version) >= 33) {
-                let notificationsPermissionCheck =
-                  await PermissionsAndroid.request(
-                    PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-                  );
-
-                console.log(notificationsPermissionCheck);
-              }
-              PushNotification.checkPermissions(permissions => {
-                console.log(permissions);
-              });
-              PushNotification.createChannel(
-                {
-                  channelId: 'ShippyAppCUSTOMER',
-                  channelName: 'name',
-                },
-                created => console.log(`createChannel returned '${created}'`),
-              );
-
-              PushNotification.localNotification({
-                title: 'Shippy xin chào',
-                message: 'Chào mừng bạn đến với Shippy',
-                channelId: 'ShippyAppCUSTOMER',
-                largeIcon: 'ic_launcher',
-                bigLargeIcon: 'ic_launcher',
-                smallIcon: 'ic_launcher',
-                bigText: 'Nút này này để chào mừng bạn ^^',
-              });
-              // PushNotification.localNotificationSchedule({
-              //   title: 'Scheduled Notification',
-              //   message: 'My Notification Message',
-              //   date: new Date(Date.now() + 10 * 1000),
-              //   channelId: 'ShippyAppCUSTOMER',
-              //   repeatTime: 5,
-              //   largeIcon: 'assets_images_logo',
-              //   bigLargeIcon: 'assets_images_logo',
-              // });
-            }
-          }}>
-          <Text
-            style={{
-              fontWeight: 'bold',
-              color: '#5AB2FF',
-              fontSize: 16,
-            }}>
-            Đăng ký tài khoản
+            Tiếp theo
           </Text>
         </TouchableOpacity>
       </View>
@@ -187,7 +126,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   footer: {
-    flex: 3,
+    flex: 2,
     width: '100%',
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
@@ -203,7 +142,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 6,
-    marginBottom: 20,
+    marginBottom: 30,
     elevation: 7,
   },
   btnSignUp: {

@@ -93,12 +93,18 @@ export default function FormIdentity({
             }
         },
         [
-            success,
-            onClose,
             listImgIdentity,
-            listImgDriveLicense,
-            listImgVehicleRegistration,
+            success.identity,
+            success.driveLicense,
+            success.vehicleRegistration,
+            listImgDriveLicense.length,
+            listImgVehicleRegistration.length,
             id,
+            imgUrl.ImgDriveLicense,
+            imgUrl.ImgIdentityCard,
+            imgUrl.ImgVehicleRegistrationCert,
+            onClose,
+            reload,
         ]
     );
 

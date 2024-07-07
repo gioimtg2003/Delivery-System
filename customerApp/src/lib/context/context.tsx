@@ -83,6 +83,9 @@ const useCustomerSource = () => {
                 largeIcon: 'assets_images_logo',
                 bigLargeIcon: 'assets_images_logo',
               });
+              dispatch({
+                type: CustomerActionType.RELOAD_ORDER_HISTORY,
+              });
             }
           });
         });

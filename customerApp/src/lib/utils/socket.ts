@@ -16,7 +16,7 @@ export const initSocket = () => {
   console.log('init socket');
 
   const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-    'http://192.168.1.76:3000',
+    'https://apishippy.nguyenconggioi.me',
     {
       transports: ['websocket'],
     },

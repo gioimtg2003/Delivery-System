@@ -21,6 +21,7 @@ export default function MapScreen({
   const [currentLocation, setCurrentLocation] = useState<number[] | null>(null);
   const [directionFetched, setDirectionFetched] = useState<boolean>(false);
   const [distance, setDistance] = useState<string>('0');
+  const [show, setShow] = useState<boolean>(false);
 
   const getDirections = useCallback(async () => {
     try {
@@ -43,6 +44,9 @@ export default function MapScreen({
   }, [route.params.destination, currentLocation, directionFetched]);
 
   useEffect(() => {
+    setTimeout(() => {
+      setShow(true);
+    }, 1500);
     (async () => {
       await getDirections();
     })();
@@ -61,7 +65,7 @@ export default function MapScreen({
           centerCoordinate={[106.660172, 10.762622]}
           animationDuration={3000}
         />
-        {directions && (
+        {show && directions && (
           <MapBox.ShapeSource id="exampleShapeSource" shape={directions}>
             <MapBox.LineLayer
               id="exampleLineLayer"
@@ -84,17 +88,19 @@ export default function MapScreen({
           androidRenderMode={'gps'}
         />
 
-        <MapBox.MarkerView
-          id="1"
-          coordinate={[
-            route.params.destination[0],
-            route.params.destination[1],
-          ]}>
-          <Image
-            source={icon}
-            style={{width: 40, height: 40, resizeMode: 'contain'}}
-          />
-        </MapBox.MarkerView>
+        {show && (
+          <MapBox.MarkerView
+            id="1"
+            coordinate={[
+              route.params.destination[0],
+              route.params.destination[1],
+            ]}>
+            <Image
+              source={icon}
+              style={{width: 40, height: 40, resizeMode: 'contain'}}
+            />
+          </MapBox.MarkerView>
+        )}
       </MapBox.MapView>
       <View style={styles.bottom}>
         <View
